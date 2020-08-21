@@ -1,3 +1,3 @@
-# wownero-web-wallet
+# wowstash
 
-A shitty web wallet for noobs who can't use a CLI.
+A web wallet for noobs who can't use a CLI.

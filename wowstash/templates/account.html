@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  {% include 'head.html' %}
+
+  <body id="page-top">
+
+    {% include 'navbar.html' %}
+
+    <header class="masthead">
+      <div class="container h-100">
+        <div class="row h-100">
+          <div class="col-lg-4 my-auto">
+            <div class="header-content mx-auto">
+              <h1 class="mb-5">Welcome Back</h1>
+              <h3 class="sm">Account Address</h3>
+              <p class="small">{{ session_data.public_address }}</p>
+              <h3 class="sm">Wallet Persistence</h3>
+              <p class="small">{{ session_data.wallet_persistence }}</p>
+              {% if wallet.connected %}
+                <h3 class="sm">Account Balance</h3>
+                <p class="small">{{ h }}</p>
+                <h3 class="sm">Wallet File</h3>
+                <p class="small">{{ config.WALLET_PATH }}/{{ session_data.wallet_path }}</p>
+              {% else %}
+              <h3 class="sm">Wallet Status</h3>
+              <p class="small">Not Connected</p>
+              {% endif %}
+
+              <a href="/account/wallet/" class="btn btn-outline btn-xl">Connect Wallet</a>
+            </div>
+          </div>
+          <!-- <div class="col-lg-6 my-auto">
+            <div class="header-content mx-auto">
+              <h1 class="mb-5">Logs</h1>
+              <h3 class="sm">Transaction Log</h3>
+              <p class="small">{{ session_data.public_address }}</p>
+              <p class="small">{{ session_data.public_address }}</p>
+              <p class="small">{{ session_data.public_address }}</p>
+              <p class="small">{{ session_data.public_address }}</p>
+              <p class="small">{{ session_data.public_address }}</p>
+            </div>
+          </div> -->
+        </div>
+      </div>
+    </header>
+
+    <!-- <section class="section1" id="seed">
+      <div class="container">
+        <div class="section-heading text-center">
+          <h2>Manage your funds</h2>
+          <p class="text-muted">This is your mnemonic seed and account password.</p>
+          <p class="text-muted">Store it securely and never share it with anyone. Use this to log into {{ config.SITE_NAME }}.</p>
+          <p class="text-muted">If you'd like a new seed, refresh the page.</p>
+          <hr><br>
+          <p>{{ seed }}</p>
+          <hr><br>
+          <a href="/login" class="btn btn-outline-inverse btn-xl">Login</a>
+        </div>
+      </div>
+    </section> -->
+
+    {% include 'footer.html' %}
+
+    {% include 'scripts.html' %}
+
+  </body>
+
+</html>

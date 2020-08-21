@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  {% include 'head.html' %}
+
+  <body id="page-top">
+
+    {% include 'navbar.html' %}
+
+    <header class="masthead">
+      <div class="container h-100">
+        <div class="row h-100">
+          <div class="col-lg-12 my-auto">
+            <div class="header-content mx-auto">
+              <form method="post" action="/login">
+                <div class="form-group">
+                  <label for="seed">Account Seed</label>
+                  <input type="text" class="form-control" name="seed" placeholder="Enter account seed">
+                </div>
+                <div class="form-check">
+                  <input type="checkbox" class="form-check-input" name="persistence">
+                  <label class="form-check-label" for="persistence">Wallet Persistence</label>
+                </div>
+                {% if error %}
+                  <p>{{ error }}</p>
+                {% endif %}
+                <br>
+                <span>
+                  <button type="submit" class="btn btn-link btn-outline btn-xl">Submit</button>
+                  <a href="/new" class="btn btn-outline btn-xl">Create Account</a>
+                </span>
+              </form>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    {% include 'footer.html' %}
+
+    {% include 'scripts.html' %}
+
+  </body>
+
+</html>

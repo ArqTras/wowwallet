@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  {% include 'head.html' %}
+
+  <body id="page-top">
+
+    {% include 'navbar.html' %}
+
+    <header class="masthead">
+      <div class="container h-100">
+        <div class="row h-100">
+          <div class="col-lg-12 my-auto">
+            <div class="header-content mx-auto">
+              <h1 class="mb-4">Be Advised</h1>
+              <p>Monero is a privacy centric cryptocurrency and is most safely managed on your own personal devices, on your own network, and with your own copy of the blockchain. This is a publicly accessible website, and while strict security measures are implemented on our servers, your account's security cannot be guaranteed. </p>
+              <p>If you decide to use this site for managing your funds, you do so at your own risk and are bound by the terms and conditions of this site. Practice good operational security and do not use this site for large amounts of funds.</p>
+              <p>The 25 word string below is your mnemonic seed. This is the password to your Monero account, and has full control over your account and funds. It can be used to restore your account on any device in the future. Never share it with anyone and store it in a secure location.</p>
+              <a href="#seed" class="btn btn-outline btn-xl js-scroll-trigger">Get Password</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="section1" id="seed">
+      <div class="container">
+        <div class="section-heading text-center">
+          <h2>Your Account Password</h2>
+          <p class="text-muted">This is your mnemonic seed and account password.</p>
+          <p class="text-muted">Store it securely and never share it with anyone. Use this to log into {{ config.SITE_NAME }}.</p>
+          <p class="text-muted">If you'd like a new seed, refresh the page.</p>
+          <hr><br>
+          <p>{{ seed }}</p>
+          <hr><br>
+          <a href="/login" class="btn btn-outline-inverse btn-xl">Login</a>
+        </div>
+      </div>
+    </section>
+
+    {% include 'footer.html' %}
+
+    {% include 'scripts.html' %}
+
+  </body>
+
+</html>
