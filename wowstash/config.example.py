@@ -29,6 +29,13 @@ SESSION_PERMANENT = True
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
 
+# Database
+DB_HOST = 'localhost'
+DB_PORT = 5432
+DB_NAME = 'wowstash'
+DB_USER = 'wowstash'
+DB_PASS = 'zzzzzzzzz'
+
 # Development
 TEMPLATES_AUTO_RELOAD = True
 
@@ -36,5 +43,6 @@ TEMPLATES_AUTO_RELOAD = True
 SOCIAL = {
     'envelope': 'mailto:admin@domain.co',
     'twitter': 'https://twitter.com/your_twitter_handle',
-    'comment-dots': 'https://webchat.freenode.net/?room=#wownero'
+    'comment': 'https://webchat.freenode.net/?room=#wownero',
+    'reddit': 'https://reddit.com/r/wownero'
 }

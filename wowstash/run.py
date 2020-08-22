@@ -4,6 +4,7 @@ from datetime import timedelta, datetime
 from redis import Redis
 from wowstash.library.jsonrpc import daemon
 from wowstash.library.info import info
+from wowstash.library.db import Database
 from wowstash import config
 # from wowstash.blueprints.account import account_bp
 # from wowstash.blueprints.authentication import authentication_bp
@@ -30,10 +31,9 @@ def index():
 
 @app.route('/health')
 def health():
-    print(dir(info.redis))
     return make_response(jsonify({
         'cache': info.redis.ping(),
-        'db': False
+        'db': Database().connected
     }), 200)
 
 
