@@ -68,7 +68,7 @@ class Wallet(object):
         _account = self.make_wallet_rpc('create_account', {'label': label})
         return _account['account_index']
 
-    def addresses(self, account, addr_indices=None):
+    def addresses(self, account=0, addr_indices=None):
         qdata = {'account_index': account}
         if addr_indices:
             qdata['address_index'] = addr_indices
@@ -78,12 +78,12 @@ class Wallet(object):
             addresses[_addr['address_index']] = _addr['address']
         return addresses
 
-    def new_address(self, account, label=None):
+    def new_address(self, account=0, label=None):
         data = {'account_index': account, 'label': label}
         _address = self.make_wallet_rpc('create_address', data)
         return (_address['address_index'], _address['address'])
 
-    def balances(self, account):
+    def balances(self, account=0):
         data = {'account_index': account}
         _balance = self.make_wallet_rpc('get_balance', data)
         return (from_atomic(_balance['balance']), from_atomic(_balance['unlocked_balance']))

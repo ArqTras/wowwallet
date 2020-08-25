@@ -27,10 +27,11 @@
                 <br>
                 <span>
                   <button type="submit" class="btn btn-link btn-outline btn-xl">Submit</button>
-                  <a href="/new" class="btn btn-outline btn-xl">Create Account</a>
                 </span>
               </form>
-
+              <hr><br>
+              <p>Need an account? Register below:</p>
+              <a href="{{ url_for('authentication.register') }}" class="btn btn-outline btn-xl">Register</a>
             </div>
           </div>
         </div>

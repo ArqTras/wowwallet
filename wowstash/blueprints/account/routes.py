@@ -1,8 +1,7 @@
 from flask import request, render_template, session
 from flask import redirect, url_for, current_app
-from wallet.blueprints.account import account_bp
-from wallet.library.daemon import daemon
-from wallet.library.wallet import wallet
+from wowstash.blueprints.account import account_bp
+
 
 @account_bp.route("/account")
 def overview():
