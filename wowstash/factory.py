@@ -1,12 +1,8 @@
-import wowstash.models
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_session import Session
 from flask_bcrypt import Bcrypt
 from redis import Redis
-from wowstash.blueprints.authentication import authentication_bp
-from wowstash.blueprints.account import account_bp
-from wowstash.blueprints.meta import meta_bp
 from wowstash import config
 
 
@@ -25,6 +21,7 @@ def _setup_db(app: Flask):
     app.config['SQLALCHEMY_DATABASE_URI'] = uri
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db = SQLAlchemy(app)
+    import wowstash.models
     db.create_all()
 
 def _setup_session(app: Flask):
@@ -37,12 +34,12 @@ def _setup_session(app: Flask):
     Session(app)
 
 def _setup_bcrypt(app: Flask):
+    global bcrypt
     bcrypt = Bcrypt(app)
 
 def create_app():
     global app
     global db
-
     app = Flask(__name__)
     app.config.from_envvar('FLASK_SECRETS')
     app.secret_key = app.config['SECRET_KEY']
@@ -53,6 +50,9 @@ def create_app():
     _setup_bcrypt(app)
 
     # Routes
+    from wowstash.blueprints.authentication import authentication_bp
+    from wowstash.blueprints.account import account_bp
+    from wowstash.blueprints.meta import meta_bp
     app.register_blueprint(meta_bp)
     app.register_blueprint(authentication_bp)
     app.register_blueprint(account_bp)
