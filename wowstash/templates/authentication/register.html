@@ -14,14 +14,21 @@
             <div class="header-content mx-auto">
               <form method="POST" action="{{ url_for('authentication.register') }}">
                   {{ form.csrf_token }}
-                  <div class="form-group">
-                    {{ form.email.label }}
-                    {{ form.email }}
-                  </div>
-                  <div class="form-group">
-                    {{ form.password.label }}
-                    {{ form.password }}
-                  </div>
+                  {% for f in form %}
+                    {% if f.name != 'csrf_token' %}
+                      {% if f.type == 'BooleanField' %}
+                        <div class="form-group-span">
+                          {{ f.label }}
+                          {{ f }}
+                        </div>
+                      {% else %}
+                        <div class="form-group">
+                          {{ f.label }}
+                          {{ f }}
+                        </div>
+                      {% endif %}
+                    {% endif %}
+                  {% endfor %}
                   <ul>
                   {% for field, errors in form.errors.items() %}
                       <li>{{ form[field].label }}: {{ ', '.join(errors) }}</li>
