@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_session import Session
 from flask_bcrypt import Bcrypt
+from flask_login import LoginManager
 from redis import Redis
 from wowstash import config
 
@@ -40,6 +41,8 @@ def _setup_bcrypt(app: Flask):
 def create_app():
     global app
     global db
+    global bcrypt
+    global login_manager
     app = Flask(__name__)
     app.config.from_envvar('FLASK_SECRETS')
     app.secret_key = app.config['SECRET_KEY']
@@ -49,13 +52,22 @@ def create_app():
     _setup_session(app)
     _setup_bcrypt(app)
 
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+    login_manager.login_view = 'authentication.login'
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        from wowstash.models import User
+        return User.query.get(user_id)
+
     # Routes
     from wowstash.blueprints.authentication import authentication_bp
-    from wowstash.blueprints.account import account_bp
+    from wowstash.blueprints.wallet import wallet_bp
     from wowstash.blueprints.meta import meta_bp
     app.register_blueprint(meta_bp)
     app.register_blueprint(authentication_bp)
-    app.register_blueprint(account_bp)
+    app.register_blueprint(wallet_bp)
 
     app.app_context().push()
     return app

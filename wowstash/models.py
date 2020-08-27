@@ -1,7 +1,6 @@
 from sqlalchemy import Column, Integer, DateTime, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
-from flask_bcrypt import generate_password_hash, check_password_hash
 from wowstash.factory import db
 
 
@@ -16,8 +15,24 @@ class User(db.Model):
     subaddress_index = db.Column(db.Integer)
     registered_on = db.Column(db.DateTime, server_default=func.now())
 
-    def hash_password(self):
-        self.password = generate_password_hash(self.password).decode('utf8')
+    @property
+    def is_authenticated(self):
+        return True
 
-    def check_password(self, password):
-        return check_password_hash(self.password, password)
+    @property
+    def is_active(self):
+        return True
+
+    @property
+    def is_anonymous(self):
+        return False
+
+    @property
+    def is_admin(self):
+        return self.admin
+
+    def get_id(self):
+        return self.id
+
+    def __repr__(self):
+        return self.username

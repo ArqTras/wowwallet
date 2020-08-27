@@ -1,5 +1,5 @@
 from flask import Blueprint
 
-account_bp = Blueprint("account", __name__)
+wallet_bp = Blueprint("wallet", __name__)
 
 from . import routes

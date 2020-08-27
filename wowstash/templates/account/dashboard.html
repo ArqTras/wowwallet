@@ -7,21 +7,30 @@
 
     {% include 'navbar.html' %}
 
-    <header class="masthead">
+    <!-- Height ({{ daemon_height }} / {{ wallet_height }})
+
+    Transactions - Send - Receive
+
+    Your Address
+
+    Transaction History
+
+    Balance: -->
+
+    <!-- <header class="masthead">
       <div class="container h-100">
         <div class="row h-100">
           <div class="col-lg-4 my-auto">
             <div class="header-content mx-auto">
-              <h1 class="mb-5">Welcome Back</h1>
+              <h2 class="mb-5">Welcome Back {{ current_user.email }}</h2>
               <h3 class="sm">Account Address</h3>
-              <p class="small">{{ session_data.public_address }}</p>
+              <p class="small">address</p>
               <h3 class="sm">Wallet Persistence</h3>
-              <p class="small">{{ session_data.wallet_persistence }}</p>
-              {% if wallet.connected %}
+              {% if wallet %}
                 <h3 class="sm">Account Balance</h3>
                 <p class="small">{{ h }}</p>
                 <h3 class="sm">Wallet File</h3>
-                <p class="small">{{ config.WALLET_PATH }}/{{ session_data.wallet_path }}</p>
+                <p class="small">{{ config.WALLET_PATH }}</p>
               {% else %}
               <h3 class="sm">Wallet Status</h3>
               <p class="small">Not Connected</p>
@@ -30,20 +39,40 @@
               <a href="/account/wallet/" class="btn btn-outline btn-xl">Connect Wallet</a>
             </div>
           </div>
-          <!-- <div class="col-lg-6 my-auto">
+          <div class="col-lg-6 my-auto">
             <div class="header-content mx-auto">
               <h1 class="mb-5">Logs</h1>
               <h3 class="sm">Transaction Log</h3>
-              <p class="small">{{ session_data.public_address }}</p>
-              <p class="small">{{ session_data.public_address }}</p>
-              <p class="small">{{ session_data.public_address }}</p>
-              <p class="small">{{ session_data.public_address }}</p>
-              <p class="small">{{ session_data.public_address }}</p>
+              <p class="small">asd</p>
             </div>
-          </div> -->
+          </div>
         </div>
       </div>
-    </header>
+    </header> -->
+
+    <section class="section2" id="">
+      <div class="container">
+        <!-- <div class="section-heading text-center">
+          <h2>Welcome</h2>
+          <p>Prices and network information</p>
+          <hr>
+        </div> -->
+        <div class="row fp-row">
+          <div class="col-lg-4">
+            <a class="btn btn-lg btn-link btn-outline btn-xl" href="#">Transactions</a>
+          </div>
+          <div class="col-lg-4">
+            <a class="btn btn-lg btn-link btn-outline btn-xl" href="#">Send</a>
+          </div>
+          <div class="col-lg-4">
+            <a class="btn btn-lg btn-link btn-outline btn-xl" href="#">Receive</a>
+          </div>
+        </div>
+        <div class="row fp-row">
+          <p>Your address: {{ subaddress }}</p>
+        </div>
+      </div>
+    </section>
 
     <!-- <section class="section1" id="seed">
       <div class="container">

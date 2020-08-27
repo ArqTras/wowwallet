@@ -6,3 +6,4 @@ requests
 Flask-WTF
 flask_sqlalchemy
 flask-bcrypt
+flask-login

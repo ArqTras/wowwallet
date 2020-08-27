@@ -11,7 +11,7 @@ DAEMON_PASS = ''
 # Wallet
 WALLET_PROTO = 'http'
 WALLET_HOST = 'localhost'
-WALLET_PORT = 8888
+WALLET_PORT = 9999
 WALLET_USER = 'yyyyy'
 WALLET_PASS = 'xxxxx'
 
