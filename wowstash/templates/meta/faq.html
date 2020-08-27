@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  {% include 'head.html' %}
+
+  <body id="page-top">
+
+    {% include 'navbar.html' %}
+
+    <header class="masthead">
+      <div class="container h-100">
+        <div class="row h-100">
+          <div class="col-lg-12 my-auto">
+            <div class="header-content-lg mx-auto">
+              <h2 class="mb-4">Frequently Asked Questions</h2>
+              <h4>What Is This Site?</h4>
+              <p>
+                This is a website that allows you to send and receive <a href="https://wownero.org" target="
+                ">Wownero</a>, a meme cryptocurrency which started as a joke and fork of <a href="https://web.getmonero.org/get-started/what-is-monero/" target="_blank">Monero</a>.
+              </p>
+              <h4>How Does It Work?</h4>
+              <p>
+                The site operator creates a new Wownero wallet and interfaces this website to it in the background. When new users sign up, a new <a href="https://monerodocs.org/public-address/subaddress/" target="_blank">subaddress</a> gets generated and assigned to the user. Users can then use the site to send and receive transactions.
+              </p>
+              <h4>Is It Safe?</h4>
+              <p>
+                No. Web wallets in general are not recommended for use as there are too many attack vectors and possible ways to potentially bypass security. Additionally, this is a custodial wallet, which means the site operator holds the mnemonic seed and technically owns all the funds within. However, if you're willing to accept the risks, web wallets do make it very easy and convenient to get started, but you have to trust that A. we won't get hacked and B. we won't scam you.
+              </p>
+              <h4>Why Should I Trust You?</h4>
+              <p>
+                You shouldn't. I am a stranger on the internet operating a custodial web wallet for a privacy-oriented, joke, memecoin. This should be all the red flags you need.
+              </p>
+              <h4>What Should I Use Instead?</h4>
+              <p>
+                Check the "Wallets" sections on the main <a href="https://wownero.org/" target="_blank">Wownero website</a> for the most recent software wallets available. Anything you can install on your own computer is the safest bet.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    {% include 'footer.html' %}
+
+    {% include 'scripts.html' %}
+
+  </body>
+
+</html>

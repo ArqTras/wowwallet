@@ -16,8 +16,8 @@
               {% if current_user.is_authenticated %}
               <a href="{{ url_for('wallet.dashboard') }}" class="btn btn-outline btn-xl">Wallet Dashboard</a>
               {% else %}
-              <a href="{{ url_for('authentication.register') }}" class="btn btn-outline btn-xl">Register</a>
-              <a href="{{ url_for('authentication.login') }}" class="btn btn-outline btn-xl">Login</a>
+              <a href="{{ url_for('auth.register') }}" class="btn btn-outline btn-xl">Register</a>
+              <a href="{{ url_for('auth.login') }}" class="btn btn-outline btn-xl">Login</a>
               {% endif %}
             </div>
           </div>
@@ -42,7 +42,9 @@
       <div class="container">
         <div class="section-heading text-center">
           <h2>About</h2>
-          <p>This is an <a href="https://git.wownero.com/lza_menace/wowstash" target="_blank">open source</a>, web based, <a href="https://atomicwallet.io/custodial-non-custodial-wallets-comparison">custodial</a> wallet for the <a href="https://wownero.org" target="_blank">Wownero</a> cryptocurrency. It's development and hosting service was funded by the community using the <a href="https://funding.wownero.com/proposal/49">Wownero Funding System</a>.</p>
+          <p>This is an <a href="https://git.wownero.com/lza_menace/wowstash" target="_blank">open source</a>, web based, <a href="https://atomicwallet.io/custodial-non-custodial-wallets-comparison" target="
+            _blank">custodial</a> wallet for the <a href="https://wownero.org" target="_blank">Wownero</a> cryptocurrency. It's development and hosting service was funded by the community using the <a href="https://funding.wownero.com/proposal/49" target="
+            _blank">Wownero Funding System</a>.</p>
           <br>
           <p>For more information about this system please read the <a href="/faq">FAQ</a>. For contact information, please see the <a href="#contact" class="js-scroll-trigger">contact</a> section.</p>
           <hr>

@@ -492,3 +492,12 @@ footer ul li a:hover, footer ul li a:focus, footer ul li a:active, footer ul li 
 .list-inline-item i {
   color: rgb(76, 76, 76);
 }
+
+#register .form-control {
+  width: 60%;
+  margin: 0 auto;
+}
+
+header.masthead .header-content-lg {
+  max-width: 70%;
+}

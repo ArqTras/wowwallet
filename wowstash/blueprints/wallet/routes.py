@@ -14,7 +14,7 @@ def dashboard():
     daemon_height = daemon.height()['height']
     subaddress = wallet.get_address(0, user.subaddress_index)['addresses'][0]['address']
     return render_template(
-        "account/dashboard.html",
+        "wallet/dashboard.html",
         wallet_height=wallet_height,
         daemon=daemon_height,
         subaddress=subaddress

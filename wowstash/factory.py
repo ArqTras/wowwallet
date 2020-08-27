@@ -54,7 +54,7 @@ def create_app():
 
     login_manager = LoginManager()
     login_manager.init_app(app)
-    login_manager.login_view = 'authentication.login'
+    login_manager.login_view = 'auth.login'
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -62,11 +62,11 @@ def create_app():
         return User.query.get(user_id)
 
     # Routes
-    from wowstash.blueprints.authentication import authentication_bp
+    from wowstash.blueprints.auth import auth_bp
     from wowstash.blueprints.wallet import wallet_bp
     from wowstash.blueprints.meta import meta_bp
     app.register_blueprint(meta_bp)
-    app.register_blueprint(authentication_bp)
+    app.register_blueprint(auth_bp)
     app.register_blueprint(wallet_bp)
 
     app.app_context().push()
