@@ -501,3 +501,16 @@ footer ul li a:hover, footer ul li a:focus, footer ul li a:active, footer ul li 
 header.masthead .header-content-lg {
   max-width: 70%;
 }
+
+@media (min-width: 992px) {
+  .tx-table {
+    display: inline-table;
+    margin: 0 auto
+  }
+}
+
+.slim {
+  width: 75%;
+  line-break: anywhere;
+  margin: auto;
+}

@@ -1,8 +1,11 @@
 import json
 import requests
-import operator
+from six import integer_types
+from decimal import Decimal
 from wowstash import config
 
+
+PICOWOW = Decimal('0.00000000001')
 
 class JSONRPC(object):
     def __init__(self, proto, host, port, username='', password=''):
@@ -53,7 +56,27 @@ class Wallet(JSONRPC):
 
     def get_address(self, account_index, subaddress_index):
         data = {'account_index': account_index, 'address_index': [subaddress_index]}
-        return self.make_rpc('get_address', data)
+        subaddress = self.make_rpc('get_address', data)['addresses'][0]['address']
+        return subaddress
+
+    def get_balance(self, account_index, subaddress_index):
+        data = {'account_index': account_index, 'address_indices': [subaddress_index]}
+        _balance = self.make_rpc('get_balance', data)
+        locked = from_atomic(_balance['per_subaddress'][0]['balance'])
+        unlocked = from_atomic(_balance['per_subaddress'][0]['unlocked_balance'])
+        return (float(locked), float(unlocked))
+
+    def get_transfers(self, account_index, subaddress_index):
+        data = {
+            'account_index': account_index,
+            'subaddr_indices': [subaddress_index],
+            'in': True,
+            'out': True,
+            'pending': True,
+            'failed': True,
+            'pool': True
+        }
+        return self.make_rpc('get_transfers', data)
 
 
 class Daemon(JSONRPC):
@@ -65,6 +88,19 @@ class Daemon(JSONRPC):
 
     def height(self):
         return self.make_rpc('get_height', {}, json_rpc=False)
+
+
+def to_atomic(amount):
+    if not isinstance(amount, (Decimal, float) + integer_types):
+        raise ValueError("Amount '{}' doesn't have numeric type. Only Decimal, int, long and "
+                "float (not recommended) are accepted as amounts.")
+    return int(amount * 10**11)
+
+def from_atomic(amount):
+    return (Decimal(amount) * PICOWOW).quantize(PICOWOW)
+
+def as_wownero(amount):
+    return Decimal(amount).quantize(PICOWOW)
 
 
 daemon = Daemon(

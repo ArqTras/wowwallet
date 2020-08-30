@@ -4,6 +4,7 @@ from flask_session import Session
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from redis import Redis
+from datetime import datetime
 from wowstash import config
 
 
@@ -60,6 +61,12 @@ def create_app():
     def load_user(user_id):
         from wowstash.models import User
         return User.query.get(user_id)
+
+    # template filters
+    @app.template_filter('datestamp')
+    def datestamp(s):
+        d = datetime.fromtimestamp(s)
+        return d.strftime('%Y-%m-%d %H:%M:%S')
 
     # Routes
     from wowstash.blueprints.auth import auth_bp
