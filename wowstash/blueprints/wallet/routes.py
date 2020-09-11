@@ -27,19 +27,6 @@ def dashboard():
         for tx in transfers[type]:
             all_transfers.append(tx)
 
-    # data = {'account_index': account_index, 'address_indices': [subaddress_index]}
-    # _balance = self.make_rpc('get_balance', data)
-    # locked = from_atomic(_balance['per_subaddress'][0]['balance'])
-    # unlocked = from_atomic(_balance['per_subaddress'][0]['unlocked_balance'])
-    # return (float(locked), float(unlocked))
-    from wowstash.library.jsonrpc import from_atomic
-    from pprint import pprint
-    bal = wallet.make_rpc('get_balance', {'account_index': 0, 'address_indices': [user.subaddress_index]})
-    # print(from_atomic(bal))
-    pprint(bal)
-    # pprint(transfers)
-    # pprint(balances)
-
     qr_uri = f'wownero:{subaddress}?tx_description="{current_user.email}"'
     address_qr = qrcode_make(qr_uri).save(_address_qr)
     qrcode = b64encode(_address_qr.getvalue()).decode()
