@@ -78,6 +78,22 @@ class Wallet(JSONRPC):
         }
         return self.make_rpc('get_transfers', data)
 
+    def transfer(self, account_index, subaddress_index, dest_address, amount):
+        data = {
+            'account_index': account_index,
+            'subaddr_indices': [subaddress_index],
+            'destinations': [{'address': dest_address, 'amount': to_atomic(amount)}],
+            'priority': 0,
+            'unlock_time': 0,
+            'get_tx_key': True,
+            'get_tx_hex': True,
+            'new_algorithm': True,
+            'do_not_relay': False,
+            'ring_size': 22
+        }
+        transfer = self.make_rpc('transfer', data)
+        return transfer
+
 
 class Daemon(JSONRPC):
     def __init__(self, **kwargs):

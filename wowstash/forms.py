@@ -13,3 +13,7 @@ class Register(FlaskForm):
 class Login(FlaskForm):
     email = StringField('Email Address:', validators=[DataRequired()], render_kw={"placeholder": "Email", "class": "form-control", "type": "email"})
     password = StringField('Password:', validators=[DataRequired()], render_kw={"placeholder": "Password", "class": "form-control", "type": "password"})
+
+class Send(FlaskForm):
+    address = StringField('Destination Address:', validators=[DataRequired()], render_kw={"placeholder": "Wownero address", "class": "form-control"})
+    amount = StringField('Amount:', validators=[DataRequired()], render_kw={"placeholder": "Amount to send", "class": "form-control"})

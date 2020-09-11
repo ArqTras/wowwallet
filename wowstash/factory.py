@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_wtf.csrf import CSRFProtect
 from flask_session import Session
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
@@ -14,10 +15,11 @@ bcrypt = None
 
 def _setup_db(app: Flask):
     global db
-    uri = 'postgresql+psycopg2://{user}:{pw}@{url}/{db}'.format(
+    uri = 'postgresql+psycopg2://{user}:{pw}@{host}:{port}/{db}'.format(
         user=config.DB_USER,
         pw=config.DB_PASS,
-        url=config.DB_HOST,
+        host=config.DB_HOST,
+        port=config.DB_PORT,
         db=config.DB_NAME
     )
     app.config['SQLALCHEMY_DATABASE_URI'] = uri
@@ -27,8 +29,6 @@ def _setup_db(app: Flask):
     db.create_all()
 
 def _setup_session(app: Flask):
-    app.config['SESSION_TYPE'] = 'redis'
-    app.config['SESSION_COOKIE_NAME'] = app.config.get('SESSION_COOKIE_NAME', 'wowstash')
     app.config['SESSION_REDIS'] = Redis(
         host=app.config['REDIS_HOST'],
         port=app.config['REDIS_PORT']
@@ -52,6 +52,7 @@ def create_app():
     _setup_db(app)
     _setup_session(app)
     _setup_bcrypt(app)
+    CSRFProtect(app)
 
     login_manager = LoginManager()
     login_manager.init_app(app)
@@ -60,13 +61,35 @@ def create_app():
     @login_manager.user_loader
     def load_user(user_id):
         from wowstash.models import User
-        return User.query.get(user_id)
+        user = User.query.get(user_id)
+        return user
 
     # template filters
     @app.template_filter('datestamp')
     def datestamp(s):
         d = datetime.fromtimestamp(s)
         return d.strftime('%Y-%m-%d %H:%M:%S')
+
+    # commands
+    @app.cli.command('send_transfers')
+    def send_transfers():
+        from wowstash.models import Transaction, User
+        from wowstash.library.jsonrpc import wallet
+        from decimal import Decimal
+
+        txes = Transaction.query.filter_by(sent=False)
+        for tx in txes:
+            user = User.query.get(tx.from_user)
+            new_tx = wallet.transfer(
+                0, user.subaddress_index, tx.address, Decimal(tx.amount)
+            )
+            if 'message' in new_tx:
+                print(f'Failed to send tx {tx.id}. Reason: {new_tx["message"]}')
+            else:
+                tx.sent = True
+                user.funds_locked = False
+                db.session.commit()
+                print(f'Successfully sent tx! {new_tx}')
 
     # Routes
     from wowstash.blueprints.auth import auth_bp

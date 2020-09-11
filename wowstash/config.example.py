@@ -20,7 +20,7 @@ PASSWORD_SALT = 'salt here' # database salts
 SECRET_KEY = 'secret session key here' # encrypts the session token
 
 # Session
-PERMANENT_SESSION_LIFETIME = 1800 # 30 minute session expiry
+PERMANENT_SESSION_LIFETIME = 1800 # 60 minute session expiry
 SESSION_TYPE = 'redis'
 SESSION_COOKIE_NAME = 'wowstash'
 SESSION_COOKIE_SECURE = False
