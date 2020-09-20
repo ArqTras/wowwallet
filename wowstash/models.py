@@ -1,3 +1,4 @@
+from os import kill
 from sqlalchemy import Column, Integer, DateTime, String, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
@@ -9,12 +10,16 @@ Base = declarative_base()
 class User(db.Model):
     __tablename__ = 'users'
 
-    id = db.Column('user_id', db.Integer, primary_key=True)
-    password = db.Column(db.String(120))
+    id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(50), unique=True, index=True)
-    subaddress_index = db.Column(db.Integer)
-    registered_on = db.Column(db.DateTime, server_default=func.now())
-    funds_locked = db.Column(db.Boolean, default=False)
+    password = db.Column(db.String(120))
+    register_date = db.Column(db.DateTime, server_default=func.now())
+    wallet_password = db.Column(db.String(120))
+    wallet_created = db.Column(db.Boolean, default=False)
+    wallet_connected = db.Column(db.Boolean, default=False)
+    wallet_port = db.Column(db.Integer, nullable=True)
+    wallet_pid = db.Column(db.Integer, nullable=True)
+    wallet_connect_date = db.Column(db.DateTime, nullable=True)
 
     @property
     def is_authenticated(self):
@@ -35,19 +40,18 @@ class User(db.Model):
     def get_id(self):
         return self.id
 
+    def kill_wallet(self):
+        try:
+            kill(self.wallet_pid, 9)
+        except Exception as e:
+            print('could kill:', e)
+
+    def clear_wallet_data(self):
+        self.wallet_connected = False
+        self.wallet_port = None
+        self.wallet_pid = None
+        self.wallet_connect_date = None
+        db.session.commit()
+
     def __repr__(self):
-        return self.username
-
-
-class Transaction(db.Model):
-    __tablename__ = 'transactions'
-
-    id = db.Column('tx_id', db.Integer, primary_key=True)
-    from_user = db.Column(db.Integer, ForeignKey(User.id))
-    sent = db.Column(db.Boolean, default=False)
-    address = db.Column(db.String(120))
-    amount = db.Column(db.String(120))
-    date = db.Column(db.DateTime, server_default=func.now())
-
-    def __repr__(self):
-        return self.id
+        return self.email

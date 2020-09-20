@@ -70,26 +70,85 @@ def create_app():
         d = datetime.fromtimestamp(s)
         return d.strftime('%Y-%m-%d %H:%M:%S')
 
-    # commands
-    @app.cli.command('send_transfers')
-    def send_transfers():
-        from wowstash.models import Transaction, User
-        from wowstash.library.jsonrpc import wallet
-        from decimal import Decimal
+    @app.template_filter('from_atomic')
+    def from_atomic(a):
+        from wowstash.library.jsonrpc import from_atomic
+        return from_atomic(a)
 
-        txes = Transaction.query.filter_by(sent=False)
-        for tx in txes:
-            user = User.query.get(tx.from_user)
-            new_tx = wallet.transfer(
-                0, user.subaddress_index, tx.address, Decimal(tx.amount)
-            )
-            if 'message' in new_tx:
-                print(f'Failed to send tx {tx.id}. Reason: {new_tx["message"]}')
-            else:
-                tx.sent = True
-                user.funds_locked = False
+    # commands
+    @app.cli.command('create_wallets')
+    def create_wallets():
+        import subprocess
+        from os import makedirs, path
+        from moneropy import account
+        from wowstash import config
+        from wowstash.factory import db
+        from wowstash.models import User
+        from wowstash.library.jsonrpc import daemon
+
+        if not path.isdir(config.WALLET_DIR):
+            makedirs(config.WALLET_DIR)
+
+        wallets_to_create = User.query.filter_by(wallet_created=False)
+        if wallets_to_create:
+            for u in wallets_to_create:
+                print(f'Creating wallet for user {u}')
+                seed, sk, vk, addr = account.gen_new_wallet()
+                command = f"""wownero-wallet-cli \
+                --generate-new-wallet {config.WALLET_DIR}/{u.id}.wallet \
+                --restore-height {daemon.info()['height']} \
+                --password {u.wallet_password} \
+                --mnemonic-language English \
+                --daemon-address {config.DAEMON_PROTO}://{config.DAEMON_HOST}:{config.DAEMON_PORT} \
+                --daemon-login {config.DAEMON_USER}:{config.DAEMON_PASS} \
+                --command version
+                """
+                proc = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
+                proc.communicate()
+                if proc.returncode == 0:
+                    print(f'Successfully created wallet for {u}!')
+                    u.wallet_created = True
+                    db.session.commit()
+                else:
+                    print(f'Failed to create wallet for {u}.')
+
+    @app.cli.command('refresh_wallets')
+    def refresh_wallets():
+        import subprocess
+        from os import kill
+        from moneropy import account
+        from wowstash import config
+        from wowstash.factory import db
+        from wowstash.models import User
+        from wowstash.library.jsonrpc import daemon
+
+        users = User.query.all()
+        for u in users:
+            print(f'Refreshing wallet for {u}')
+
+            if u.wallet_pid is None:
+                break
+
+            # first check if the pid is still there
+            try:
+                kill(u.wallet_pid, 0)
+            except OSError:
+                print('pid does not exist')
+                u.wallet_connected = False
+                u.wallet_pid = None
+                u.wallet_connect_date = None
+                u.wallet_port = None
                 db.session.commit()
-                print(f'Successfully sent tx! {new_tx}')
+
+            # then check if the user session is still active
+            if u.is_active is False:
+                print('user session inactive')
+                kill(u.wallet_pid, 9)
+                u.wallet_connected = False
+                u.wallet_pid = None
+                u.wallet_connect_date = None
+                u.wallet_port = None
+                db.session.commit()
 
     # Routes
     from wowstash.blueprints.auth import auth_bp

@@ -9,11 +9,7 @@ DAEMON_USER = ''
 DAEMON_PASS = ''
 
 # Wallet
-WALLET_PROTO = 'http'
-WALLET_HOST = 'localhost'
-WALLET_PORT = 9999
-WALLET_USER = 'yyyyy'
-WALLET_PASS = 'xxxxx'
+WALLET_DIR = './data/wallets'
 
 # Security
 PASSWORD_SALT = 'salt here' # database salts

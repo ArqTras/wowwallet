@@ -54,22 +54,19 @@ class Wallet(JSONRPC):
         _address = self.make_rpc('create_address', data)
         return (_address['address_index'], _address['address'])
 
-    def get_address(self, account_index, subaddress_index):
-        data = {'account_index': account_index, 'address_index': [subaddress_index]}
-        subaddress = self.make_rpc('get_address', data)['addresses'][0]['address']
-        return subaddress
+    def get_address(self, account_index=0):
+        data = {'account_index': account_index}
+        address = self.make_rpc('get_address', data)['address']
+        return address
 
-    def get_balance(self, account_index, subaddress_index):
-        data = {'account_index': account_index, 'address_indices': [subaddress_index]}
-        _balance = self.make_rpc('get_balance', data)
-        locked = from_atomic(_balance['per_subaddress'][0]['balance'])
-        unlocked = from_atomic(_balance['per_subaddress'][0]['unlocked_balance'])
-        return (float(locked), float(unlocked))
+    def get_balances(self, account_index=0):
+        data = {'account_index': account_index}
+        balance = self.make_rpc('get_balance', data)
+        return (balance['balance'], balance['unlocked_balance'])
 
-    def get_transfers(self, account_index, subaddress_index):
+    def get_transfers(self, account_index=0):
         data = {
             'account_index': account_index,
-            'subaddr_indices': [subaddress_index],
             'in': True,
             'out': True,
             'pending': True,
@@ -125,12 +122,4 @@ daemon = Daemon(
     port=config.DAEMON_PORT,
     username=config.DAEMON_USER,
     password=config.DAEMON_PASS
-)
-
-wallet = Wallet(
-    proto=config.WALLET_PROTO,
-    host=config.WALLET_HOST,
-    port=config.WALLET_PORT,
-    username=config.WALLET_USER,
-    password=config.WALLET_PASS
 )

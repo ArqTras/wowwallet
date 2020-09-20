@@ -6,19 +6,19 @@ from redis import Redis
 from wowstash import config
 
 
-class CoinInfo(object):
+class Cache(object):
     def __init__(self):
         self.redis = Redis(host=config.REDIS_HOST, port=config.REDIS_PORT)
 
-    def store_info(self, info):
+    def store_data(self, item_name, expiration_minutes, data):
         self.redis.setex(
-            "info",
-            timedelta(minutes=15),
-            value=info
+            item_name,
+            timedelta(minutes=expiration_minutes),
+            value=data
         )
 
-    def get_info(self):
-        info = self.redis.get("info")
+    def get_coin_info(self):
+        info = self.redis.get("coin_info")
         if info:
             return json_loads(info)
         else:
@@ -42,7 +42,7 @@ class CoinInfo(object):
                 'total_volume': r.json()['market_data']['total_volume']['usd'],
                 'last_updated': r.json()['last_updated']
             }
-            self.store_info(json_dumps(info))
+            self.store_data("coin_info", 15, json_dumps(info))
             return info
 
-info = CoinInfo()
+cache = Cache()

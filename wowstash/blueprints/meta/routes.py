@@ -1,13 +1,13 @@
 from flask import request, render_template, session, redirect, url_for, make_response, jsonify
 from wowstash.blueprints.meta import meta_bp
 from wowstash.library.jsonrpc import daemon
-from wowstash.library.info import info
+from wowstash.library.cache import cache
 from wowstash.library.db import Database
 
 
 @meta_bp.route('/')
 def index():
-    return render_template('meta/index.html', node=daemon.info(), info=info.get_info())
+    return render_template('meta/index.html', node=daemon.info(), info=cache.get_coin_info())
 
 @meta_bp.route('/faq')
 def faq():
@@ -20,7 +20,6 @@ def terms():
 @meta_bp.route('/privacy')
 def privacy():
     return render_template('meta/privacy.html')
-
 
 @meta_bp.route('/health')
 def health():
