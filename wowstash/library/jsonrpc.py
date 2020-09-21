@@ -49,6 +49,15 @@ class Wallet(JSONRPC):
     def height(self):
         return self.make_rpc('get_height', {})
 
+    def spend_key(self):
+        return self.make_rpc('query_key', {'key_type': 'spend_key'})['key']
+
+    def view_key(self):
+        return self.make_rpc('query_key', {'key_type': 'view_key'})['key']
+
+    def seed(self):
+        return self.make_rpc('query_key', {'key_type': 'mnemonic'})['key']
+
     def new_address(self, account_index=0, label=None):
         data = {'account_index': account_index, 'label': label}
         _address = self.make_rpc('create_address', data)

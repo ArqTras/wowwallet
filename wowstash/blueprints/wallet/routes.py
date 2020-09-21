@@ -39,6 +39,10 @@ def dashboard():
         username=current_user.id,
         password=current_user.wallet_password
     )
+    if not docker.container_exists(current_user.wallet_container):
+        current_user.clear_wallet_data()
+        return redirect(url_for('wallet.loading'))
+
     if not wallet.connected:
         return redirect(url_for('wallet.loading'))
 
@@ -51,6 +55,9 @@ def dashboard():
     qr_uri = f'wownero:{address}?tx_description={current_user.email}'
     address_qr = qrcode_make(qr_uri).save(_address_qr)
     qrcode = b64encode(_address_qr.getvalue()).decode()
+    seed = wallet.seed()
+    spend_key = wallet.spend_key()
+    view_key = wallet.view_key()
     return render_template(
         'wallet/dashboard.html',
         transfers=all_transfers,
@@ -58,7 +65,10 @@ def dashboard():
         address=address,
         qrcode=qrcode,
         send_form=send_form,
-        user=current_user
+        user=current_user,
+        seed=seed,
+        spend_key=spend_key,
+        view_key=view_key,
     )
 
 @wallet_bp.route('/wallet/connect')

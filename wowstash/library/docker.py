@@ -1,5 +1,5 @@
 from docker import from_env, APIClient
-from docker.errors import NotFound
+from docker.errors import NotFound, NullResource, APIError
 from socket import socket
 from wowstash import config
 from wowstash.models import User
@@ -42,6 +42,7 @@ class Docker(object):
 
     def start_wallet(self, user_id):
         u = User.query.get(user_id)
+        container_name = f'start_wallet_{u.id}'
         command = f"""wownero-wallet-rpc \
         --non-interactive \
         --rpc-bind-port {self.listen_port} \
@@ -54,24 +55,29 @@ class Docker(object):
         --daemon-login {config.DAEMON_USER}:{config.DAEMON_PASS} \
         --log-file /wallet/{u.id}-rpc.log
         """
-        container = self.client.containers.run(
-            self.wownero_image,
-            command=command,
-            auto_remove=True,
-            name=f'start_wallet_{u.id}',
-            remove=True,
-            detach=True,
-            ports={
-                f'{self.listen_port}/tcp': ('127.0.0.1', None)
-            },
-            volumes={
-                f'{self.wallet_dir}/{u.id}': {
-                    'bind': '/wallet',
-                    'mode': 'rw'
+        try:
+            container = self.client.containers.run(
+                self.wownero_image,
+                command=command,
+                auto_remove=True,
+                name=container_name,
+                remove=True,
+                detach=True,
+                ports={
+                    f'{self.listen_port}/tcp': ('127.0.0.1', None)
+                },
+                volumes={
+                    f'{self.wallet_dir}/{u.id}': {
+                        'bind': '/wallet',
+                        'mode': 'rw'
+                    }
                 }
-            }
-        )
-        return container.short_id
+            )
+            return container.short_id
+        except APIError as e:
+            if str(e).startswith('409'):
+                container = self.client.containers.get(container_name)
+                return container.short_id
 
     def get_port(self, container_id):
         client = APIClient()
@@ -84,6 +90,8 @@ class Docker(object):
             self.client.containers.get(container_id)
             return True
         except NotFound:
+            return False
+        except NullResource:
             return False
 
     def stop_container(self, container_id):

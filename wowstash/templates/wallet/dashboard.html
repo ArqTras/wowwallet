@@ -20,10 +20,13 @@
           <p class="inline">{{ balances[1] | from_atomic }} WOW ({{ balances[0] | from_atomic }} locked)</p>
           <span class="dashboard-buttons">
             <div class="col-sm-6 dashboard-button">
-              <a class="btn btn-lg btn-link btn-outline btn-xl js-scroll-trigger" href="#transfers">List</a>
+              <a class="btn btn-lg btn-link btn-outline btn-xl js-scroll-trigger" href="#transfers">See Txes</a>
             </div>
             <div class="col-sm-6 dashboard-button">
-              <a class="btn btn-lg btn-link btn-outline btn-xl js-scroll-trigger" href="#send">Send</a>
+              <a class="btn btn-lg btn-link btn-outline btn-xl js-scroll-trigger" href="#send">Send Tx</a>
+            </div>
+            <div class="col-sm-6 dashboard-button">
+              <a class="btn btn-lg btn-link btn-outline btn-xl js-scroll-trigger" href="#secrets">See Secrets</a>
             </div>
           </span>
         </div>
@@ -92,6 +95,24 @@
               <input type="submit" value="Send" class="btn btn-link btn-outline btn-xl">
           </form>
           {% endif %}
+        </div>
+      </div>
+    </section>
+
+    <section class="section1" id="secrets">
+      <div class="container">
+        <div class="section-heading text-center">
+          <h2>Secrets</h2>
+          <p>You need to save the secrets below; write them down on a physical medium and keep it in a safe location. These can be used to restore your funds to another device in the future.</p>
+          <hr><br>
+          <h3>Mnemonic Seed</h3>
+          <p class="small">{{ seed }}</p>
+          <br>
+          <h3>Spend Key</h3>
+          <p class="small">{{ spend_key }}</p>
+          <br>
+          <h3>View Key</h3>
+          <p class="small">{{ view_key }}</p>
         </div>
       </div>
     </section>
