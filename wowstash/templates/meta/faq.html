@@ -20,11 +20,11 @@
               </p>
               <h4>How Does It Work?</h4>
               <p>
-                The site operator creates a new Wownero wallet and interfaces this website to it in the background. When new users sign up, a new <a href="https://monerodocs.org/public-address/subaddress/" target="_blank">subaddress</a> gets generated and assigned to the user. Users can then use the site to send and receive transactions.
+                When users sign up, a new Wownero wallet gets generated on the user's behalf. When logging in, each user's wallet gets mapped to them in such a way that they can interact with only their wallet in the browser. Users can then use the site to send and receive transactions.
               </p>
               <h4>Is It Safe?</h4>
               <p>
-                No. Web wallets in general are not recommended for use as there are too many attack vectors and possible ways to potentially bypass security. Additionally, this is a custodial wallet, which means the site operator holds the mnemonic seed and technically owns all the funds within. However, if you're willing to accept the risks, web wallets do make it very easy and convenient to get started, but you have to trust that A. we won't get hacked and B. we won't scam you.
+                No. Web wallets in general are not recommended for use as there are too many attack vectors and possible ways to potentially bypass security. Additionally, even though you can control the seed, this is technically a custodial wallet because the site operator holds the wallets and secrets used to access them. However, if you're willing to accept the risks, web wallets do make it very easy and convenient to get started, but you have to trust that A. we won't get hacked and B. we won't scam you.
               </p>
               <h4>Why Should I Trust You?</h4>
               <p>
@@ -32,7 +32,7 @@
               </p>
               <h4>What Should I Use Instead?</h4>
               <p>
-                Check the "Wallets" sections on the main <a href="https://wownero.org/" target="_blank">Wownero website</a> for the most recent software wallets available. Anything you can install on your own computer is the safest bet.
+                Check the "Wallets" sections on the main <a href="https://wownero.org/" target="_blank">Wownero website</a> for the most recent software wallets available. Anything you can install on your own computer is the safest bet. This site uses `wownero-wallet-cli` under the hood; you should use that.
               </p>
             </div>
           </div>
