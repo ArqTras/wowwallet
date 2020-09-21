@@ -537,3 +537,8 @@ header.masthead .header-content-lg {
   width: 60%;
   margin: 0 auto;
 }
+
+ol li {
+  font-size: 1.1em;
+  padding-bottom: .75em;
+}
