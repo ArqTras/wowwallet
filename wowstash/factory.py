@@ -57,6 +57,7 @@ def create_app():
     login_manager = LoginManager()
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
+    login_manager.logout_view = 'auth.logout'
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -73,7 +74,16 @@ def create_app():
     @app.template_filter('from_atomic')
     def from_atomic(a):
         from wowstash.library.jsonrpc import from_atomic
-        return from_atomic(a)
+        atomic = from_atomic(a)
+        if atomic == 0:
+            return 0
+        else:
+            return float(atomic)
+
+    @app.cli.command('clean_containers')
+    def clean_containers():
+        from wowstash.library.docker import docker
+        docker.cleanup()
 
     # Routes
     from wowstash.blueprints.auth import auth_bp

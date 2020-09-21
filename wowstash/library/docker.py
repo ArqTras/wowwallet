@@ -9,7 +9,7 @@ class Docker(object):
     def __init__(self):
         self.client = from_env()
         self.wownero_image = getattr(config, 'WOWNERO_IMAGE', 'lalanza808/wownero')
-        self.wallet_dir = getattr(config, 'WALLET_DIR', './data/wallets')
+        self.wallet_dir = getattr(config, 'WALLET_DIR', '/tmp/wallets')
         self.listen_port = 34569
 
     def create_wallet(self, user_id):
@@ -45,6 +45,8 @@ class Docker(object):
         command = f"""wownero-wallet-rpc \
         --non-interactive \
         --rpc-bind-port {self.listen_port} \
+        --rpc-bind-ip 0.0.0.0 \
+        --confirm-external-bind \
         --wallet-file /wallet/{u.id}.wallet \
         --rpc-login {u.id}:{u.wallet_password} \
         --password {u.wallet_password} \
@@ -60,7 +62,7 @@ class Docker(object):
             remove=True,
             detach=True,
             ports={
-                f'{self.listen_port}/tcp': None
+                f'{self.listen_port}/tcp': ('127.0.0.1', None)
             },
             volumes={
                 f'{self.wallet_dir}/{u.id}': {
@@ -83,3 +85,18 @@ class Docker(object):
             return True
         except NotFound:
             return False
+
+    def stop_container(self, container_id):
+        if self.container_exists(container_id):
+            c = self.client.containers.get(container_id)
+            c.stop()
+
+    def cleanup(self):
+        users = User.query.all()
+        for u in users:
+            if u.wallet_container:
+                if not self.container_exists(u.wallet_container):
+                    u.clear_wallet_data()
+
+
+docker = Docker()

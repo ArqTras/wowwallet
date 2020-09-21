@@ -41,10 +41,18 @@
       xhr.send();
     }
 
-    {% if current_user.wallet_connected == False %}
+    {% if current_user.wallet_connected == False and current_user.wallet_created == True %}
     document.addEventListener("DOMContentLoaded", function(){
       var xhr = new XMLHttpRequest();
       xhr.open('GET', '{{ url_for("wallet.connect") }}');
+      xhr.send();
+    });
+    {% endif %}
+
+    {% if current_user.wallet_connected == False and current_user.wallet_created == False %}
+    document.addEventListener("DOMContentLoaded", function(){
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', '{{ url_for("wallet.create") }}');
       xhr.send();
     });
     {% endif %}

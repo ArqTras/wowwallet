@@ -1,4 +1,4 @@
-import subprocess
+from time import sleep
 from io import BytesIO
 from base64 import b64encode
 from qrcode import make as qrcode_make
@@ -9,6 +9,7 @@ from flask_login import login_required, current_user
 from socket import socket
 from datetime import datetime
 from wowstash.blueprints.wallet import wallet_bp
+from wowstash.library.docker import docker
 from wowstash.library.jsonrpc import Wallet, to_atomic
 from wowstash.library.cache import cache
 from wowstash.forms import Send
@@ -21,6 +22,7 @@ from wowstash import config
 @login_required
 def loading():
     if current_user.wallet_connected and current_user.wallet_created:
+        sleep(1)
         return redirect(url_for('wallet.dashboard'))
     return render_template('wallet/loading.html')
 
@@ -46,7 +48,7 @@ def dashboard():
         for tx in transfers[type]:
             all_transfers.append(tx)
     balances = wallet.get_balances()
-    qr_uri = f'wownero:{address}?tx_description="{current_user.email}"'
+    qr_uri = f'wownero:{address}?tx_description={current_user.email}'
     address_qr = qrcode_make(qr_uri).save(_address_qr)
     qrcode = b64encode(_address_qr.getvalue()).decode()
     return render_template(
@@ -63,42 +65,33 @@ def dashboard():
 @login_required
 def connect():
     if current_user.wallet_connected is False:
-        tcp = socket()
-        tcp.bind(('', 0))
-        _, port = tcp.getsockname()
-        tcp.close()
-        command = f"""wownero-wallet-rpc \
-        --detach \
-        --non-interactive \
-        --rpc-bind-port {port} \
-        --wallet-file {config.WALLET_DIR}/{current_user.id}.wallet \
-        --rpc-login {current_user.id}:{current_user.wallet_password} \
-        --password {current_user.wallet_password} \
-        --daemon-address {config.DAEMON_PROTO}://{config.DAEMON_HOST}:{config.DAEMON_PORT} \
-        --daemon-login {config.DAEMON_USER}:{config.DAEMON_PASS} \
-        --log-file {config.WALLET_DIR}/{current_user.id}.log
-        """
-        proc = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
-        outs, errs = proc.communicate()
-        # print(outs)
-        if proc.returncode == 0:
-            print(f'Successfully started RPC for {current_user}!')
-            current_user.wallet_connected = True
-            current_user.wallet_port = port
-            current_user.wallet_pid = proc.pid
-            current_user.wallet_connect_date = datetime.now()
-            db.session.commit()
+        wallet = docker.start_wallet(current_user.id)
+        port = docker.get_port(wallet)
+        current_user.wallet_connected = docker.container_exists(wallet)
+        current_user.wallet_port = port
+        current_user.wallet_container = wallet
+        db.session.commit()
 
-    return "ok"
+    return 'ok'
+
+@wallet_bp.route('/wallet/create')
+@login_required
+def create():
+    if current_user.wallet_created is False:
+        docker.create_wallet(current_user.id)
+        current_user.wallet_created = True
+        db.session.commit()
+
+    return 'ok'
 
 @wallet_bp.route('/wallet/status')
 @login_required
 def status():
     data = {
-        "created": current_user.wallet_created,
-        "connected": current_user.wallet_connected,
-        "port": current_user.wallet_port,
-        "date": current_user.wallet_connect_date
+        'created': current_user.wallet_created,
+        'connected': current_user.wallet_connected,
+        'port': current_user.wallet_port,
+        'container': current_user.wallet_container
     }
     return jsonify(data)
 

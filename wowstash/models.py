@@ -18,8 +18,7 @@ class User(db.Model):
     wallet_created = db.Column(db.Boolean, default=False)
     wallet_connected = db.Column(db.Boolean, default=False)
     wallet_port = db.Column(db.Integer, nullable=True)
-    wallet_pid = db.Column(db.Integer, nullable=True)
-    wallet_connect_date = db.Column(db.DateTime, nullable=True)
+    wallet_container = db.Column(db.String(30), nullable=True)
 
     @property
     def is_authenticated(self):
@@ -40,17 +39,10 @@ class User(db.Model):
     def get_id(self):
         return self.id
 
-    def kill_wallet(self):
-        try:
-            kill(self.wallet_pid, 9)
-        except Exception as e:
-            print('could kill:', e)
-
     def clear_wallet_data(self):
         self.wallet_connected = False
         self.wallet_port = None
-        self.wallet_pid = None
-        self.wallet_connect_date = None
+        self.wallet_container = None
         db.session.commit()
 
     def __repr__(self):

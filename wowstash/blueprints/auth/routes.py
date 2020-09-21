@@ -6,6 +6,7 @@ from wowstash.blueprints.auth import auth_bp
 from wowstash.forms import Register, Login
 from wowstash.models import User
 from wowstash.factory import db, bcrypt
+from wowstash.library.docker import docker
 
 
 @auth_bp.route("/register", methods=["GET", "POST"])
@@ -69,7 +70,7 @@ def login():
 @auth_bp.route("/logout")
 def logout():
     if current_user.is_authenticated:
-        current_user.kill_wallet()
+        docker.stop_container(current_user.wallet_container)
         current_user.clear_wallet_data()
     logout_user()
     return redirect(url_for('meta.index'))
