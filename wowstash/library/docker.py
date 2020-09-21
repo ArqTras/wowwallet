@@ -42,7 +42,7 @@ class Docker(object):
 
     def start_wallet(self, user_id):
         u = User.query.get(user_id)
-        container_name = f'start_wallet_{u.id}'
+        container_name = f'rpc_wallet_{u.id}'
         command = f"""wownero-wallet-rpc \
         --non-interactive \
         --rpc-bind-port {self.listen_port} \

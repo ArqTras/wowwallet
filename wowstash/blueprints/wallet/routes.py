@@ -110,6 +110,13 @@ def status():
 def send():
     send_form = Send()
     redirect_url = url_for('wallet.dashboard') + '#send'
+    wallet = Wallet(
+        proto='http',
+        host='127.0.0.1',
+        port=current_user.wallet_port,
+        username=current_user.id,
+        password=current_user.wallet_password
+    )
     if send_form.validate_on_submit():
         address = str(send_form.address.data)
         user = User.query.get(current_user.id)
@@ -119,43 +126,32 @@ def send():
             flash('Wallet RPC interface is unavailable at this time. Try again later.')
             return redirect(redirect_url)
 
-        # Check if user funds flag is locked
-        if current_user.funds_locked:
-            flash('You currently have transactions pending and transfers are locked. Try again later.')
-            return redirect(redirect_url)
-
         # Quick n dirty check to see if address is WOW
         if len(address) not in [97, 108]:
             flash('Invalid Wownero address provided.')
             return redirect(redirect_url)
 
-        # Make sure the amount provided is a number
-        try:
-            amount = to_atomic(Decimal(send_form.amount.data))
-        except:
-            flash('Invalid Wownero amount specified.')
-            return redirect(redirect_url)
+        # Check if we're sweeping or not
+        if send_form.amount.data == 'all':
+            tx = wallet.transfer(address, None, 'sweep_all')
+        else:
+            # Make sure the amount provided is a number
+            try:
+                amount = to_atomic(Decimal(send_form.amount.data))
+            except:
+                flash('Invalid Wownero amount specified.')
+                return redirect(redirect_url)
 
-        # Make sure the amount does not exceed the balance
-        if amount >= user.balance:
-            flash('Not enough funds to transfer that much.')
-            return redirect(redirect_url)
+            # Send transfer
+            tx = wallet.transfer(address, amount)
 
-        # Lock user funds
-        user.funds_locked = True
-        db.session.commit()
+        # Inform user of result and redirect
+        if 'message' in tx:
+            msg = tx['message'].capitalize()
+            flash(f'There was a problem sending the transaction: {msg}')
+        else:
+            flash('Successfully sent transfer.')
 
-        # Queue the transaction
-        tx = TransferQueue(
-            user=user.id,
-            address=address,
-            amount=amount
-        )
-        db.session.add(tx)
-        db.session.commit()
-
-        # Redirect back
-        flash('Successfully queued transfer.')
         return redirect(redirect_url)
     else:
         for field, errors in send_form.errors.items():
