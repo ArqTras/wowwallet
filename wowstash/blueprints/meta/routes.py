@@ -3,6 +3,7 @@ from wowstash.blueprints.meta import meta_bp
 from wowstash.library.jsonrpc import daemon
 from wowstash.library.cache import cache
 from wowstash.library.db import Database
+from wowstash.library.docker import Docker
 
 
 @meta_bp.route('/')
@@ -24,8 +25,9 @@ def privacy():
 @meta_bp.route('/health')
 def health():
     return make_response(jsonify({
-        'cache': info.redis.ping(),
-        'db': Database().connected
+        'redis': cache.redis.ping(),
+        'postgres': Database().connected,
+        'docker': Docker().client.ping()
     }), 200)
 
 # @app.errorhandler(404)
