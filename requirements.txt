@@ -9,5 +9,5 @@ flask-bcrypt
 flask-login
 qrcode
 Pillow
-git+https://github.com/lalanza808/MoneroPy
 docker
+elasticsearch

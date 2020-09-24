@@ -7,6 +7,7 @@ from wowstash.forms import Register, Login
 from wowstash.models import User
 from wowstash.factory import db, bcrypt
 from wowstash.library.docker import docker
+from wowstash.library.elasticsearch import send_es
 
 
 @auth_bp.route("/register", methods=["GET", "POST"])
@@ -32,7 +33,8 @@ def register():
         db.session.add(user)
         db.session.commit()
 
-        # Login user and redirect to wallet page
+        # Capture event, login user and redirect to wallet page
+        send_es({'type': 'register', 'user': user.email})
         login_user(user)
         return redirect(url_for('wallet.dashboard'))
 
@@ -61,7 +63,8 @@ def login():
             flash('Invalid username or password.')
             return redirect(url_for('auth.login'))
 
-        # Login user and redirect to wallet page
+        # Capture event, login user, and redirect to wallet page
+        send_es({'type': 'login', 'user': user.email})
         login_user(user)
         return redirect(url_for('wallet.dashboard'))
 
@@ -71,6 +74,8 @@ def login():
 def logout():
     if current_user.is_authenticated:
         docker.stop_container(current_user.wallet_container)
+        send_es({'type': 'stop_container', 'user': current_user.email})
         current_user.clear_wallet_data()
+    send_es({'type': 'logout', 'user': current_user.email})
     logout_user()
     return redirect(url_for('meta.index'))
