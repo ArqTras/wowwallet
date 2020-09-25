@@ -13,7 +13,7 @@ from wowstash.library.docker import docker
 from wowstash.library.elasticsearch import send_es
 from wowstash.library.jsonrpc import Wallet, to_atomic
 from wowstash.library.cache import cache
-from wowstash.forms import Send
+from wowstash.forms import Send, Delete
 from wowstash.factory import db
 from wowstash.models import User
 from wowstash import config
@@ -31,6 +31,7 @@ def loading():
 @login_required
 def dashboard():
     send_form = Send()
+    delete_form = Delete()
     _address_qr = BytesIO()
     all_transfers = list()
     wallet = Wallet(
@@ -67,6 +68,7 @@ def dashboard():
         address=address,
         qrcode=qrcode,
         send_form=send_form,
+        delete_form=delete_form,
         user=current_user,
         seed=seed,
         spend_key=spend_key,

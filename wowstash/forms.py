@@ -17,3 +17,6 @@ class Login(FlaskForm):
 class Send(FlaskForm):
     address = StringField('Destination Address:', validators=[DataRequired()], render_kw={"placeholder": "Wownero address", "class": "form-control"})
     amount = StringField('Amount:', validators=[DataRequired()], render_kw={"placeholder": "Amount to send or \"all\"", "class": "form-control"})
+
+class Delete(FlaskForm):
+    confirm = BooleanField('Confirm Account and Wallet Deletion:', validators=[DataRequired()], render_kw={"class": "form-control-span"})

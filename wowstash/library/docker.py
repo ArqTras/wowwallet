@@ -1,8 +1,12 @@
 from docker import from_env, APIClient
 from docker.errors import NotFound, NullResource, APIError
 from socket import socket
+from shutil import rmtree
+from os.path import expanduser
+from secrets import token_urlsafe
 from wowstash import config
 from wowstash.models import User
+from wowstash.factory import db
 from wowstash.library.jsonrpc import daemon
 from wowstash.library.elasticsearch import send_es
 
@@ -11,11 +15,13 @@ class Docker(object):
     def __init__(self):
         self.client = from_env()
         self.wownero_image = getattr(config, 'WOWNERO_IMAGE', 'lalanza808/wownero')
-        self.wallet_dir = getattr(config, 'WALLET_DIR', '/tmp/wallets')
-        self.listen_port = 34569
+        self.wallet_dir = expanduser(getattr(config, 'WALLET_DIR', '~/data/wallets'))
+        self.listen_port = 8888
 
     def create_wallet(self, user_id):
         u = User.query.get(user_id)
+        u.wallet_password = token_urlsafe(12)
+        db.session.commit()
         command = f"""wownero-wallet-cli \
         --generate-new-wallet /wallet/{u.id}.wallet \
         --restore-height {daemon.info()['height']} \
@@ -102,6 +108,11 @@ class Docker(object):
         if self.container_exists(container_id):
             c = self.client.containers.get(container_id)
             c.stop()
+
+    def delete_wallet_data(self, user_id):
+        user_dir = f'{self.wallet_dir}/{user_id}'
+        res = rmtree(user_dir)
+        return res
 
     def cleanup(self):
         users = User.query.all()

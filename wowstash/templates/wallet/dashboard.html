@@ -69,14 +69,6 @@
       <div class="container-slim">
         <div class="section-heading text-center">
           <h2>Send</h2>
-          {% if current_user.funds_locked %}
-            <p>Sending funds is currently locked due to a transfer already in progress. Please try again in a few minutes. Pending transfers:</p>
-            <ul>
-              {% for tx in txs_queued %}
-                <li class="slim small">{{ tx.amount | from_atomic }} - {{ tx.address }}</li>
-              {% endfor %}
-            </ul>
-          {% else %}
           <form method="POST" action="{{ url_for('wallet.send') }}" class="send-form">
               {{ send_form.csrf_token }}
               {% for f in send_form %}
@@ -94,7 +86,6 @@
             </ul>
               <input type="submit" value="Send" class="btn btn-link btn-outline btn-xl">
           </form>
-          {% endif %}
         </div>
       </div>
     </section>
@@ -113,6 +104,32 @@
           <br>
           <h3>View Key</h3>
           <p class="small">{{ view_key }}</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section2" id="send">
+      <div class="container-slim">
+        <div class="section-heading text-center">
+          <h2>Delete Account</h2>
+          <p>You can and should delete your wallet from the server. Please ensure you have copied the mnemonic seed from the secrets above if there are still funds associated with the keys.</p>
+          <form method="POST" action="{{ url_for('auth.delete') }}" class="send-form">
+              {{ delete_form.csrf_token }}
+              {% for f in delete_form %}
+                {% if f.name != 'csrf_token' %}
+                  <div class="form-group">
+                    {{ f.label }}
+                    {{ f }}
+                  </div>
+                {% endif %}
+              {% endfor %}
+              <ul>
+              {% for field, errors in delete_form.errors.items() %}
+                  <li>{{ send_form[field].label }}: {{ ', '.join(errors) }}</li>
+              {% endfor %}
+            </ul>
+              <input type="submit" value="Delete" class="btn btn-link btn-outline btn-xl">
+          </form>
         </div>
       </div>
     </section>

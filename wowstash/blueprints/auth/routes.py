@@ -1,9 +1,8 @@
 from os import kill
 from flask import request, render_template, session, redirect, url_for, flash
-from flask_login import login_user, logout_user, current_user
-from secrets import token_urlsafe
+from flask_login import login_user, logout_user, current_user, login_required
 from wowstash.blueprints.auth import auth_bp
-from wowstash.forms import Register, Login
+from wowstash.forms import Register, Login, Delete
 from wowstash.models import User
 from wowstash.factory import db, bcrypt
 from wowstash.library.docker import docker
@@ -28,7 +27,6 @@ def register():
         user = User(
             email=form.email.data,
             password=bcrypt.generate_password_hash(form.password.data).decode('utf8'),
-            wallet_password=token_urlsafe(16),
         )
         db.session.add(user)
         db.session.commit()
@@ -76,6 +74,22 @@ def logout():
         docker.stop_container(current_user.wallet_container)
         send_es({'type': 'stop_container', 'user': current_user.email})
         current_user.clear_wallet_data()
-    send_es({'type': 'logout', 'user': current_user.email})
-    logout_user()
+        send_es({'type': 'logout', 'user': current_user.email})
+        logout_user()
     return redirect(url_for('meta.index'))
+
+@auth_bp.route("/delete", methods=["GET", "POST"])
+@login_required
+def delete():
+    form = Delete()
+    if form.validate_on_submit():
+        docker.stop_container(current_user.wallet_container)
+        send_es({'type': 'stop_container', 'user': current_user.email})
+        docker.delete_wallet_data(current_user.id)
+        send_es({'type': 'delete_wallet', 'user': current_user.email})
+        current_user.clear_wallet_data(reset_password=True, reset_wallet=True)
+        flash('Successfully deleted wallet data')
+        return redirect(url_for('meta.index'))
+    else:
+        flash('Please confirm deletion of the account')
+        return redirect(url_for('wallet.dashboard'))

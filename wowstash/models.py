@@ -14,7 +14,7 @@ class User(db.Model):
     email = db.Column(db.String(50), unique=True, index=True)
     password = db.Column(db.String(120))
     register_date = db.Column(db.DateTime, server_default=func.now())
-    wallet_password = db.Column(db.String(120))
+    wallet_password = db.Column(db.String(120), nullable=True)
     wallet_created = db.Column(db.Boolean, default=False)
     wallet_connected = db.Column(db.Boolean, default=False)
     wallet_port = db.Column(db.Integer, nullable=True)
@@ -39,10 +39,14 @@ class User(db.Model):
     def get_id(self):
         return self.id
 
-    def clear_wallet_data(self):
+    def clear_wallet_data(self, reset_password=False, reset_wallet=False):
         self.wallet_connected = False
         self.wallet_port = None
         self.wallet_container = None
+        if reset_password:
+            self.wallet_password = None
+        if reset_wallet:
+            self.wallet_created = False
         db.session.commit()
 
     def __repr__(self):
