@@ -1,7 +1,6 @@
 from docker import from_env, APIClient
 from docker.errors import NotFound, NullResource, APIError
 from socket import socket
-from shutil import rmtree
 from os.path import expanduser
 from secrets import token_urlsafe
 from wowstash import config
@@ -20,6 +19,7 @@ class Docker(object):
 
     def create_wallet(self, user_id):
         u = User.query.get(user_id)
+        volume_name = self.get_user_volume(u.id)
         u.wallet_password = token_urlsafe(12)
         db.session.commit()
         command = f"""wownero-wallet-cli \
@@ -27,11 +27,16 @@ class Docker(object):
         --restore-height {daemon.info()['height']} \
         --password {u.wallet_password} \
         --mnemonic-language English \
-        --daemon-address {config.INT_DAEMON_PROTO}://{config.INT_DAEMON_HOST}:{config.INT_DAEMON_PORT} \
-        --daemon-login {config.INT_DAEMON_USER}:{config.INT_DAEMON_PASS} \
+        --daemon-address {config.DAEMON_PROTO}://{config.DAEMON_HOST}:{config.DAEMON_PORT} \
+        --daemon-login {config.DAEMON_USER}:{config.DAEMON_PASS} \
         --log-file /wallet/{u.id}-create.log
         --command version
         """
+        if not self.volume_exists(volume_name):
+            self.client.volumes.create(
+                name=volume_name,
+                driver='local'
+            )
         container = self.client.containers.run(
             self.wownero_image,
             command=command,
@@ -40,7 +45,7 @@ class Docker(object):
             remove=True,
             detach=True,
             volumes={
-                f'{self.wallet_dir}/{u.id}': {
+                volume_name: {
                     'bind': '/wallet',
                     'mode': 'rw'
                 }
@@ -52,6 +57,7 @@ class Docker(object):
     def start_wallet(self, user_id):
         u = User.query.get(user_id)
         container_name = f'rpc_wallet_{u.id}'
+        volume_name = self.get_user_volume(u.id)
         command = f"""wownero-wallet-rpc \
         --non-interactive \
         --rpc-bind-port {self.listen_port} \
@@ -60,8 +66,8 @@ class Docker(object):
         --wallet-file /wallet/{u.id}.wallet \
         --rpc-login {u.id}:{u.wallet_password} \
         --password {u.wallet_password} \
-        --daemon-address {config.INT_DAEMON_PROTO}://{config.INT_DAEMON_HOST}:{config.INT_DAEMON_PORT} \
-        --daemon-login {config.INT_DAEMON_USER}:{config.INT_DAEMON_PASS} \
+        --daemon-address {config.DAEMON_PROTO}://{config.DAEMON_HOST}:{config.DAEMON_PORT} \
+        --daemon-login {config.DAEMON_USER}:{config.DAEMON_PASS} \
         --log-file /wallet/{u.id}-rpc.log
         """
         try:
@@ -76,7 +82,7 @@ class Docker(object):
                     f'{self.listen_port}/tcp': ('127.0.0.1', None)
                 },
                 volumes={
-                    f'{self.wallet_dir}/{u.id}': {
+                    volume_name: {
                         'bind': '/wallet',
                         'mode': 'rw'
                     }
@@ -104,15 +110,32 @@ class Docker(object):
         except NullResource:
             return False
 
+    def volume_exists(self, volume_id):
+        try:
+            self.client.volumes.get(volume_id)
+            return True
+        except NotFound:
+            return False
+        except NullResource:
+            return False
+
     def stop_container(self, container_id):
         if self.container_exists(container_id):
             c = self.client.containers.get(container_id)
             c.stop()
 
     def delete_wallet_data(self, user_id):
-        user_dir = f'{self.wallet_dir}/{user_id}'
-        res = rmtree(user_dir)
-        return res
+        volume_name = self.get_user_volume(user_id)
+        volume = self.client.volumes.get(volume_name)
+        try:
+            volume.remove()
+            return True
+        except Exception as e:
+            raise
+
+    def get_user_volume(self, user_id):
+        volume_name = f'user_{user_id}_wallet'
+        return volume_name
 
     def cleanup(self):
         users = User.query.all()

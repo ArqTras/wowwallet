@@ -8,12 +8,6 @@ DAEMON_PORT = 34568
 DAEMON_USER = ''
 DAEMON_PASS = ''
 
-INT_DAEMON_PROTO = 'http'
-INT_DAEMON_HOST = 'node.suchwow.xyz'
-INT_DAEMON_PORT = 34568
-INT_DAEMON_USER = ''
-INT_DAEMON_PASS = ''
-
 # Wallets
 WALLET_DIR = './data/wallets'
 WOWNERO_IMAGE = 'lalanza808/wownero:v0.9.0.0'
