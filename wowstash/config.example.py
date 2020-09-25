@@ -8,8 +8,9 @@ DAEMON_PORT = 34568
 DAEMON_USER = ''
 DAEMON_PASS = ''
 
-# Wallet
+# Wallets
 WALLET_DIR = './data/wallets'
+WOWNERO_IMAGE = 'lalanza808/wownero:v0.9.0.0'
 
 # Security
 PASSWORD_SALT = 'salt here' # database salts
