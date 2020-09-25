@@ -27,8 +27,8 @@ class Docker(object):
         --restore-height {daemon.info()['height']} \
         --password {u.wallet_password} \
         --mnemonic-language English \
-        --daemon-address {config.DAEMON_PROTO}://{config.DAEMON_HOST}:{config.DAEMON_PORT} \
-        --daemon-login {config.DAEMON_USER}:{config.DAEMON_PASS} \
+        --daemon-address {config.INT_DAEMON_PROTO}://{config.INT_DAEMON_HOST}:{config.INT_DAEMON_PORT} \
+        --daemon-login {config.INT_DAEMON_USER}:{config.INT_DAEMON_PASS} \
         --log-file /wallet/{u.id}-create.log
         --command version
         """
@@ -60,8 +60,8 @@ class Docker(object):
         --wallet-file /wallet/{u.id}.wallet \
         --rpc-login {u.id}:{u.wallet_password} \
         --password {u.wallet_password} \
-        --daemon-address {config.DAEMON_PROTO}://{config.DAEMON_HOST}:{config.DAEMON_PORT} \
-        --daemon-login {config.DAEMON_USER}:{config.DAEMON_PASS} \
+        --daemon-address {config.INT_DAEMON_PROTO}://{config.INT_DAEMON_HOST}:{config.INT_DAEMON_PORT} \
+        --daemon-login {config.INT_DAEMON_USER}:{config.INT_DAEMON_PASS} \
         --log-file /wallet/{u.id}-rpc.log
         """
         try:
