@@ -1,6 +1,7 @@
 from os import kill
 from flask import request, render_template, session, redirect, url_for, flash
 from flask_login import login_user, logout_user, current_user, login_required
+from time import sleep
 from wowstash.blueprints.auth import auth_bp
 from wowstash.forms import Register, Login, Delete
 from wowstash.models import User
@@ -85,6 +86,7 @@ def delete():
     if form.validate_on_submit():
         docker.stop_container(current_user.wallet_container)
         send_es({'type': 'stop_container', 'user': current_user.email})
+        sleep(1)
         docker.delete_wallet_data(current_user.id)
         send_es({'type': 'delete_wallet', 'user': current_user.email})
         current_user.clear_wallet_data(reset_password=True, reset_wallet=True)
