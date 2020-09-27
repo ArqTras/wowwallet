@@ -37,6 +37,7 @@ DB_PASS = 'zzzzzzzzz'
 
 # Development
 TEMPLATES_AUTO_RELOAD = True
+ELASTICSEARCH_ENABLED = False
 
 # Social
 SOCIAL = {
