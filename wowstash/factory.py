@@ -9,12 +9,10 @@ from datetime import datetime
 from wowstash import config
 
 
-app = None
-db = None
-bcrypt = None
+db = SQLAlchemy()
+bcrypt = Bcrypt()
 
 def _setup_db(app: Flask):
-    global db
     uri = 'postgresql+psycopg2://{user}:{pw}@{host}:{port}/{db}'.format(
         user=config.DB_USER,
         pw=config.DB_PASS,
@@ -28,70 +26,54 @@ def _setup_db(app: Flask):
     import wowstash.models
     db.create_all()
 
-def _setup_session(app: Flask):
-    app.config['SESSION_REDIS'] = Redis(
-        host=app.config['REDIS_HOST'],
-        port=app.config['REDIS_PORT']
-    )
-    Session(app)
-
-def _setup_bcrypt(app: Flask):
-    global bcrypt
-    bcrypt = Bcrypt(app)
-
 def create_app():
-    global app
-    global db
-    global bcrypt
-    global login_manager
     app = Flask(__name__)
     app.config.from_envvar('FLASK_SECRETS')
-    app.secret_key = app.config['SECRET_KEY']
 
     # Setup backends
     _setup_db(app)
-    _setup_session(app)
-    _setup_bcrypt(app)
-    CSRFProtect(app)
+    bcrypt = Bcrypt(app)
+    login_manager = LoginManager(app)
 
-    login_manager = LoginManager()
-    login_manager.init_app(app)
-    login_manager.login_view = 'auth.login'
-    login_manager.logout_view = 'auth.logout'
+    with app.app_context():
 
-    @login_manager.user_loader
-    def load_user(user_id):
-        from wowstash.models import User
-        user = User.query.get(user_id)
-        return user
+        # Login manager
+        login_manager.login_view = 'auth.login'
+        login_manager.logout_view = 'auth.logout'
 
-    # template filters
-    @app.template_filter('datestamp')
-    def datestamp(s):
-        d = datetime.fromtimestamp(s)
-        return d.strftime('%Y-%m-%d %H:%M:%S')
+        @login_manager.user_loader
+        def load_user(user_id):
+            from wowstash.models import User
+            user = User.query.get(user_id)
+            return user
 
-    @app.template_filter('from_atomic')
-    def from_atomic(a):
-        from wowstash.library.jsonrpc import from_atomic
-        atomic = from_atomic(a)
-        if atomic == 0:
-            return 0
-        else:
-            return float(atomic)
+        # Template filters
+        @app.template_filter('datestamp')
+        def datestamp(s):
+            d = datetime.fromtimestamp(s)
+            return d.strftime('%Y-%m-%d %H:%M:%S')
 
-    @app.cli.command('clean_containers')
-    def clean_containers():
-        from wowstash.library.docker import docker
-        docker.cleanup()
+        @app.template_filter('from_atomic')
+        def from_atomic(a):
+            from wowstash.library.jsonrpc import from_atomic
+            atomic = from_atomic(a)
+            if atomic == 0:
+                return 0
+            else:
+                return float(atomic)
 
-    # Routes
-    from wowstash.blueprints.auth import auth_bp
-    from wowstash.blueprints.wallet import wallet_bp
-    from wowstash.blueprints.meta import meta_bp
-    app.register_blueprint(meta_bp)
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(wallet_bp)
+        # CLI
+        @app.cli.command('clean_containers')
+        def clean_containers():
+            from wowstash.library.docker import docker
+            docker.cleanup()
 
-    app.app_context().push()
-    return app
+        # Routes/blueprints
+        from wowstash.blueprints.auth import auth_bp
+        from wowstash.blueprints.wallet import wallet_bp
+        from wowstash.blueprints.meta import meta_bp
+        app.register_blueprint(meta_bp)
+        app.register_blueprint(auth_bp)
+        app.register_blueprint(wallet_bp)
+
+        return app

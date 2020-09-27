@@ -18,11 +18,13 @@ SECRET_KEY = 'secret session key here' # encrypts the session token
 
 # Session
 PERMANENT_SESSION_LIFETIME = 1800 # 60 minute session expiry
-SESSION_TYPE = 'redis'
 SESSION_COOKIE_NAME = 'wowstash'
+SESSION_COOKIE_DOMAIN = '127.0.0.1'
 SESSION_COOKIE_SECURE = False
 SESSION_USE_SIGNER = True
 SESSION_PERMANENT = True
+
+# Redis
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
 
