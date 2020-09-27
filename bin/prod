@@ -18,4 +18,4 @@ gunicorn \
   --access-logfile $BASE/access.log \
   --reload
 
-echo "Starting gunicorn with pid $(cat ./data/gunicorn.pid)"
+echo "Starting gunicorn with pid $(cat $BASE/gunicorn.pid)"
