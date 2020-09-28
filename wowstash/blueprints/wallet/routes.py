@@ -84,6 +84,7 @@ def connect():
         current_user.wallet_connected = docker.container_exists(wallet)
         current_user.wallet_port = port
         current_user.wallet_container = wallet
+        current_user.wallet_start = datetime.utcnow()
         db.session.commit()
 
     return 'ok'

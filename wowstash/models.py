@@ -19,6 +19,7 @@ class User(db.Model):
     wallet_connected = db.Column(db.Boolean, default=False)
     wallet_port = db.Column(db.Integer, nullable=True)
     wallet_container = db.Column(db.String(30), nullable=True)
+    wallet_start = db.Column(db.DateTime, nullable=True)
 
     @property
     def is_authenticated(self):
@@ -43,6 +44,7 @@ class User(db.Model):
         self.wallet_connected = False
         self.wallet_port = None
         self.wallet_container = None
+        self.wallet_start = None
         if reset_password:
             self.wallet_password = None
         if reset_wallet:

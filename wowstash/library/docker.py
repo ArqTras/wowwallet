@@ -3,6 +3,8 @@ from docker.errors import NotFound, NullResource, APIError
 from socket import socket
 from os.path import expanduser
 from secrets import token_urlsafe
+from datetime import datetime, timedelta
+from time import sleep
 from wowstash import config
 from wowstash.models import User
 from wowstash.factory import db
@@ -140,9 +142,20 @@ class Docker(object):
     def cleanup(self):
         users = User.query.all()
         for u in users:
-            if u.wallet_container:
-                if not self.container_exists(u.wallet_container):
-                    u.clear_wallet_data()
+            # Delete inactive wallet sessions
+            if u.wallet_start:
+                session_lifetime = getattr(config, 'PERMANENT_SESSION_LIFETIME', 3600)
+                expiration_time = u.wallet_start + timedelta(seconds=session_lifetime)
+                now = datetime.utcnow()
+                time_diff = expiration_time - now
+                if time_diff.total_seconds() <= 0:
+                    print(f'[+] Found expired container for {u}. killing it')
+                    self.stop_container(u.wallet_container)
+                    sleep(2)
+            # Remove wallet db data if not running but it's in db
+            if u.wallet_container and not self.container_exists(u.wallet_container):
+                print(f'[+] Found stale data for {u}')
+                u.clear_wallet_data()
 
 
 docker = Docker()
