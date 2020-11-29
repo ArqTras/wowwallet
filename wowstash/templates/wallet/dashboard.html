@@ -37,6 +37,41 @@
       <div class="container">
         <div class="section-heading text-center">
           <h2>Transfers</h2>
+          <div style="width: 70%; text-align: center; margin: 0 auto;">
+            <canvas id="wow_wallet"></canvas>
+            <canvas id="wow_wallet_scatter"></canvas>
+          </div>
+
+          <script src="/static/js/Chart.bundle.min.js"></script>
+          <link rel="stylesheet" href="/static/css/Chart.min.css"/>
+          <script>
+          var wownero = '#ff2ad4';
+          var set_title = function(t){
+            return {
+              display: true,
+              text: t,
+              fontColor: 'white',
+            }
+          }
+
+          var ctx = document.getElementById('wow_wallet').getContext('2d');
+          new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: [0, {% for i in sorted_txes %}'{{ sorted_txes[i].timestamp | datestamp  }}',{% endfor %}],
+              datasets: [{
+                label: 'Balance',
+                backgroundColor: wownero,
+                borderColor: wownero,
+                data: [0, {% for i in sorted_txes %}{{ sorted_txes[i].total | from_atomic }},{% endfor %}],
+                fill: false,
+              }]
+            },
+            options: {
+              title: set_title('Wownero Wallet Balance')
+            }
+          });
+          </script>
           <table class="table table-striped table-hover table-responsive table-responsive-sm tx-table">
             <tr>
               <th>Date</th>
