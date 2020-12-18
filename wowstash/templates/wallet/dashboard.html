@@ -104,21 +104,27 @@
       <div class="container-slim">
         <div class="section-heading text-center">
           <h2>Send</h2>
+          <i class="fa fa-qrcode fa-2x" id="startVideo"></i><br /><br />
+          <div class="hidden" id="preview">
+            <p>Show me a QR code!</p>
+            <video id="video" width="300" height="200"></video>
+            <br /><button id="stopVideo">Cancel</button>
+          </div>
           <form method="POST" action="{{ url_for('wallet.send') }}" class="send-form">
               {{ send_form.csrf_token }}
-              {% for f in send_form %}
-                {% if f.name != 'csrf_token' %}
-                  <div class="form-group">
-                    {{ f.label }}
-                    {{ f }}
-                  </div>
-                {% endif %}
-              {% endfor %}
+              <div class="form-group">
+                {{ send_form.address.label }}
+                {{ send_form.address }}
+              </div>
+              <div class="form-group">
+                {{ send_form.amount.label }}
+                {{ send_form.amount }}
+              </div>
               <ul>
-              {% for field, errors in send_form.errors.items() %}
-                  <li>{{ send_form[field].label }}: {{ ', '.join(errors) }}</li>
-              {% endfor %}
-            </ul>
+                {% for field, errors in send_form.errors.items() %}
+                    <li>{{ send_form[field].label }}: {{ ', '.join(errors) }}</li>
+                {% endfor %}
+              </ul>
               <input type="submit" value="Send" class="btn btn-link btn-outline btn-xl">
           </form>
         </div>
