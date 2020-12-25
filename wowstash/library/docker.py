@@ -9,7 +9,7 @@ from wowstash import config
 from wowstash.models import User
 from wowstash.factory import db
 from wowstash.library.jsonrpc import daemon
-from wowstash.library.elasticsearch import send_es
+from wowstash.helpers import capture_event
 
 
 class Docker(object):
@@ -53,7 +53,7 @@ class Docker(object):
                 }
             }
         )
-        send_es({'type': 'create_wallet', 'user': u.email})
+        capture_event('create_wallet', u)
         return container.short_id
 
     def start_wallet(self, user_id):
@@ -90,7 +90,7 @@ class Docker(object):
                     }
                 }
             )
-            send_es({'type': 'start_wallet', 'user': u.email})
+            capture_event('start_wallet', u)
             return container.short_id
         except APIError as e:
             if str(e).startswith('409'):

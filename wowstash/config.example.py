@@ -46,3 +46,10 @@ SOCIAL = {
     'comment': 'https://webchat.freenode.net/?room=#wownero',
     'reddit': 'https://reddit.com/r/wownero'
 }
+
+# Mattermost
+MM_ENABLED = False
+MM_CHANNEL = 'wowstash'
+MM_USERNAME = 'WOW Stash'
+MM_ICON = 'https://wowstash.app/static/img/wow-treasure-chest.png'
+MM_ENDPOINT = 'xxxxxxx'

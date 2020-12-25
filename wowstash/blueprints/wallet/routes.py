@@ -10,7 +10,7 @@ from socket import socket
 from datetime import datetime
 from wowstash.blueprints.wallet import wallet_bp
 from wowstash.library.docker import docker
-from wowstash.library.elasticsearch import send_es
+from wowstash.helpers import capture_event
 from wowstash.library.jsonrpc import Wallet, to_atomic
 from wowstash.library.cache import cache
 from wowstash.forms import Send, Delete
@@ -60,7 +60,7 @@ def dashboard():
     seed = wallet.seed()
     spend_key = wallet.spend_key()
     view_key = wallet.view_key()
-    send_es({'type': 'load_dashboard', 'user': current_user.email})
+    # capture_event('load_dashboard', current_user)
     return render_template(
         'wallet/dashboard.html',
         transfers=all_transfers,
@@ -130,13 +130,13 @@ def send():
         # Check if Wownero wallet is available
         if wallet.connected is False:
             flash('Wallet RPC interface is unavailable at this time. Try again later.')
-            send_es({'type': 'tx_fail_rpc_unavailable', 'user': user.email})
+            capture_event('tx_fail_rpc_unavailable', user)
             return redirect(redirect_url)
 
         # Quick n dirty check to see if address is WOW
         if len(address) not in [97, 108]:
             flash('Invalid Wownero address provided.')
-            send_es({'type': 'tx_fail_address_invalid', 'user': user.email})
+            capture_event('tx_fail_address_invalid', user)
             return redirect(redirect_url)
 
         # Check if we're sweeping or not
@@ -148,7 +148,7 @@ def send():
                 amount = to_atomic(Decimal(send_form.amount.data))
             except:
                 flash('Invalid Wownero amount specified.')
-                send_es({'type': 'tx_fail_amount_invalid', 'user': user.email})
+                capture_event('tx_fail_amount_invalid', user)
                 return redirect(redirect_url)
 
             # Send transfer
@@ -159,10 +159,10 @@ def send():
             msg = tx['message'].capitalize()
             msg_lower = tx['message'].replace(' ', '_').lower()
             flash(f'There was a problem sending the transaction: {msg}')
-            send_es({'type': f'tx_fail_{msg_lower}', 'user': user.email})
+            capture_event(f'tx_fail_{msg_lower}', user)
         else:
             flash('Successfully sent transfer.')
-            send_es({'type': 'tx_success', 'user': user.email})
+            capture_event('tx_success', user)
 
         return redirect(redirect_url)
     else:
