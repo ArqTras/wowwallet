@@ -13,11 +13,30 @@ from wowstash.library.docker import docker
 from wowstash.library.elasticsearch import send_es
 from wowstash.library.jsonrpc import Wallet, to_atomic
 from wowstash.library.cache import cache
-from wowstash.forms import Send, Delete
+from wowstash.forms import Send, Delete, Restore
 from wowstash.factory import db
 from wowstash.models import User
 from wowstash import config
 
+
+@wallet_bp.route('/wallet/setup', methods=['GET', 'POST'])
+@login_required
+def setup():
+    if current_user.wallet_created:
+        return redirect(url_for('wallet.dashboard'))
+    restore_form = Restore()
+    if restore_form.validate_on_submit():
+        if current_user.wallet_created is False:
+            docker.create_wallet(current_user.id, restore_form.seed.data)
+            current_user.wallet_created = True
+            db.session.commit()
+            return redirect(url_for('wallet.loading'))
+        else:
+            return redirect(url_for('wallet.dashboard'))
+    return render_template(
+        'wallet/setup.html',
+        restore_form=restore_form
+    )
 
 @wallet_bp.route('/wallet/loading')
 @login_required

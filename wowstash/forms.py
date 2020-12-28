@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, BooleanField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, ValidationError
 
 
 class Register(FlaskForm):
@@ -20,3 +20,10 @@ class Send(FlaskForm):
 
 class Delete(FlaskForm):
     confirm = BooleanField('Confirm Account and Wallet Deletion:', validators=[DataRequired()], render_kw={"class": "form-control-span"})
+
+class Restore(FlaskForm):
+    seed = StringField('Seed Phrase', validators=[DataRequired()], render_kw={"placeholder": "25 word mnemonic seed phrase", "class": "form-control"})
+
+    def validate_seed(self, seed):
+        if len(self.seed.data.split()) != 25:
+            raise ValidationError("Invalid seed provided; must be 25 word format")

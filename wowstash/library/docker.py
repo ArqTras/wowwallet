@@ -19,21 +19,36 @@ class Docker(object):
         self.wallet_dir = expanduser(getattr(config, 'WALLET_DIR', '~/data/wallets'))
         self.listen_port = 8888
 
-    def create_wallet(self, user_id):
+    def create_wallet(self, user_id, seed=None):
         u = User.query.get(user_id)
         volume_name = self.get_user_volume(u.id)
         u.wallet_password = token_urlsafe(12)
         db.session.commit()
-        command = f"""wownero-wallet-cli \
-        --generate-new-wallet /wallet/{u.id}.wallet \
-        --restore-height {daemon.info()['height']} \
-        --password {u.wallet_password} \
-        --mnemonic-language English \
-        --daemon-address {config.DAEMON_PROTO}://{config.DAEMON_HOST}:{config.DAEMON_PORT} \
-        --daemon-login {config.DAEMON_USER}:{config.DAEMON_PASS} \
-        --log-file /wallet/{u.id}-create.log
-        --command version
-        """
+        if seed:
+            action = "restore"
+            command = f"""sh -c "yes '' | wownero-wallet-cli \
+            --restore-deterministic-wallet \
+            --generate-new-wallet /wallet/{u.id}.wallet \
+            --restore-height 0 \
+            --password {u.wallet_password} \
+            --daemon-address {config.DAEMON_PROTO}://{config.DAEMON_HOST}:{config.DAEMON_PORT} \
+            --daemon-login {config.DAEMON_USER}:{config.DAEMON_PASS} \
+            --electrum-seed '{seed}' \
+            --log-file /wallet/{u.id}-{action}.log \
+            --command refresh"
+            """
+        else:
+            action = "create"
+            command = f"""wownero-wallet-cli \
+            --generate-new-wallet /wallet/{u.id}.wallet \
+            --restore-height {daemon.info()['height']} \
+            --password {u.wallet_password} \
+            --mnemonic-language English \
+            --daemon-address {config.DAEMON_PROTO}://{config.DAEMON_HOST}:{config.DAEMON_PORT} \
+            --daemon-login {config.DAEMON_USER}:{config.DAEMON_PASS} \
+            --log-file /wallet/{u.id}-{action}.log \
+            --command version
+            """
         if not self.volume_exists(volume_name):
             self.client.volumes.create(
                 name=volume_name,
@@ -43,7 +58,7 @@ class Docker(object):
             self.wownero_image,
             command=command,
             auto_remove=True,
-            name=f'create_wallet_{u.id}',
+            name=f'{action}_wallet_{u.id}',
             remove=True,
             detach=True,
             volumes={
@@ -53,7 +68,7 @@ class Docker(object):
                 }
             }
         )
-        send_es({'type': 'create_wallet', 'user': u.email})
+        send_es({'type': f'{action}_wallet', 'user': u.email})
         return container.short_id
 
     def start_wallet(self, user_id):

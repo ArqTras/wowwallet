@@ -35,7 +35,7 @@ def register():
         # Capture event, login user and redirect to wallet page
         send_es({'type': 'register', 'user': user.email})
         login_user(user)
-        return redirect(url_for('wallet.dashboard'))
+        return redirect(url_for('wallet.setup'))
 
     return render_template("auth/register.html", form=form)
 
