@@ -50,18 +50,16 @@
     {% endif %}
 
     {% if current_user.wallet_connected == False and current_user.wallet_created == False %}
-    document.addEventListener("DOMContentLoaded", function(){
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', '{{ url_for("wallet.create") }}');
-      xhr.send();
-    });
+    // document.addEventListener("DOMContentLoaded", function(){
+    //   var xhr = new XMLHttpRequest();
+    //   xhr.open('GET', '{{ url_for("wallet.create") }}');
+    //   xhr.send();
+    // });
     {% endif %}
 
     window.setInterval(function(){
       {% if current_user.wallet_connected == False and current_user.wallet_created == True %}
       check_wallet_status('connected');
-      {% else %}
-      check_wallet_status('created');
       {% endif %}
     }, 6000);
     </script>
