@@ -47,21 +47,11 @@
       xhr.open('GET', '{{ url_for("wallet.connect") }}');
       xhr.send();
     });
-    {% endif %}
-
-    {% if current_user.wallet_connected == False and current_user.wallet_created == False %}
-    // document.addEventListener("DOMContentLoaded", function(){
-    //   var xhr = new XMLHttpRequest();
-    //   xhr.open('GET', '{{ url_for("wallet.create") }}');
-    //   xhr.send();
-    // });
-    {% endif %}
 
     window.setInterval(function(){
-      {% if current_user.wallet_connected == False and current_user.wallet_created == True %}
       check_wallet_status('connected');
-      {% endif %}
     }, 6000);
+    {% endif %}
     </script>
 
     {% include 'footer.html' %}
