@@ -23,7 +23,8 @@ class Delete(FlaskForm):
 
 class Restore(FlaskForm):
     seed = StringField('Seed Phrase', validators=[DataRequired()], render_kw={"placeholder": "25 word mnemonic seed phrase", "class": "form-control"})
+    risks_accepted = BooleanField('I accept the risks:', validators=[DataRequired()], render_kw={"class": "form-control-span"})
 
     def validate_seed(self, seed):
         if len(self.seed.data.split()) != 25:
-            raise ValidationError("Invalid seed provided; must be 25 word format")
+            raise ValidationError("Invalid seed provided; must be standard Wownero 25 word format")
