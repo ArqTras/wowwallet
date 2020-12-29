@@ -62,12 +62,10 @@ def dashboard():
         password=current_user.wallet_password
     )
     if not docker.container_exists(current_user.wallet_container):
-        print('container does not exist.')
         current_user.clear_wallet_data()
         return redirect(url_for('wallet.loading'))
 
     if not wallet.connected:
-        print('container not connected')
         return redirect(url_for('wallet.loading'))
 
     address = wallet.get_address()
