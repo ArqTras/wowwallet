@@ -42,7 +42,6 @@ def setup():
 @login_required
 def loading():
     if current_user.wallet_connected and current_user.wallet_created:
-        sleep(1)
         return redirect(url_for('wallet.dashboard'))
     if current_user.wallet_created is False:
         return redirect(url_for('wallet.setup'))
@@ -63,10 +62,12 @@ def dashboard():
         password=current_user.wallet_password
     )
     if not docker.container_exists(current_user.wallet_container):
+        print('container does not exist.')
         current_user.clear_wallet_data()
         return redirect(url_for('wallet.loading'))
 
     if not wallet.connected:
+        print('container not connected')
         return redirect(url_for('wallet.loading'))
 
     address = wallet.get_address()
@@ -127,18 +128,13 @@ def create():
 def status():
     user_vol = docker.get_user_volume(current_user.id)
     restore_container = cache.get_data(f'restoring_{current_user.id}')
-    if restore_container:
-        restoring = True
-    else:
-        restoring = False
     data = {
         'created': current_user.wallet_created,
         'connected': current_user.wallet_connected,
         'port': current_user.wallet_port,
         'container': current_user.wallet_container,
         'volume': docker.volume_exists(user_vol),
-        'restoring': restoring,
-        'restore_container': restore_container
+        'restoring': docker.container_exists(restore_container)
     }
     return jsonify(data)
 

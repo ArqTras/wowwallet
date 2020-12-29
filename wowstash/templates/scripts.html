@@ -4,6 +4,39 @@
 <script src="/static/js/main.js"></script>
 <script src="/static/js/noty.js"></script>
 
+{% if request.path == '/wallet/loading' %}
+<script type="text/javascript">
+function check_status(){
+  fetch('/wallet/status')
+    .then((resp) => resp.json())
+    .then(function(data) {
+        console.log(JSON.stringify(data));
+
+        // If we've created a wallet and volume, but not connected a container and are not restoring, attempt connecting
+        if(data['created'] && data['volume'] && data['connected'] == false && data['restoring'] == false){
+          fetch('/wallet/connect')
+        }
+
+        // If ...
+        if(data['created'] && data['volume'] && data['connected']){
+          window.setInterval(function(){
+            window.location.href = "{{ url_for('wallet.dashboard') }}"
+          }, 3000);
+        }
+    })
+}
+
+// Check every few seconds...
+window.setInterval(function(){
+  check_status();
+}, 6000);
+
+// ...but also check on initial page load
+check_status();
+
+</script>
+{% endif %}
+
 {% if request.path == '/wallet/dashboard' %}
 <script type="text/javascript" src="/static/js/zxing.js"></script>
 <script type="text/javascript">
