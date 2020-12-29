@@ -99,6 +99,13 @@ def dashboard():
 @wallet_bp.route('/wallet/connect')
 @login_required
 def connect():
+    if current_user.wallet_created is False:
+        data = {
+            'result': 'fail',
+            'message': 'Wallet not yet created'
+        }
+        return jsonify(data)
+
     if current_user.wallet_connected is False:
         wallet = docker.start_wallet(current_user.id)
         port = docker.get_port(wallet)
@@ -107,8 +114,17 @@ def connect():
         current_user.wallet_container = wallet
         current_user.wallet_start = datetime.utcnow()
         db.session.commit()
+        data = {
+            'result': 'success',
+            'message': 'Wallet has been connected'
+        }
+    else:
+        data = {
+            'result': 'fail',
+            'message': 'Wallet is already connected'
+        }
 
-    return 'ok'
+    return jsonify(data)
 
 @wallet_bp.route('/wallet/create')
 @login_required
