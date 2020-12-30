@@ -77,6 +77,11 @@ def create_app():
             user.clear_wallet_data()
             print(f'Wallet data cleared for user {user.id}')
 
+        @app.cli.command('init')
+        def init():
+            import wowstash.models
+            db.create_all()
+
         # Routes/blueprints
         from wowstash.blueprints.auth import auth_bp
         from wowstash.blueprints.wallet import wallet_bp
