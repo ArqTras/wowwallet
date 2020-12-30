@@ -59,7 +59,7 @@ class Event(db.Model):
     __tablename__ = 'events'
 
     id = db.Column(db.Integer, primary_key=True)
-    type = db.Column(db.String(30))
+    type = db.Column(db.String(60))
     user = db.Column(db.Integer, db.ForeignKey(User.id))
     date = db.Column(db.DateTime, server_default=func.now())
 
