@@ -1,3 +1,4 @@
+from re import match as re_match
 from flask_wtf import FlaskForm
 from wtforms import StringField, BooleanField
 from wtforms.validators import DataRequired, ValidationError
@@ -26,5 +27,8 @@ class Restore(FlaskForm):
     risks_accepted = BooleanField('I accept the risks:', validators=[DataRequired()], render_kw={"class": "form-control-span"})
 
     def validate_seed(self, seed):
+        regex = '^[\w\s]+$'
+        if bool(re_match(regex, self.seed.data)) is False:
+            raise ValidationError('Invalid seed provided; must be alphanumeric characters only')
         if len(self.seed.data.split()) != 25:
             raise ValidationError("Invalid seed provided; must be standard Wownero 25 word format")
