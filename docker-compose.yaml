@@ -20,7 +20,7 @@ services:
       - 6379:6379
   grafana:
     image: grafana/grafana:6.5.0
-    container_name: grafana
+    container_name: wowstash_ops
     restart: unless-stopped
     ports:
       - 127.0.0.1:3001:3000
