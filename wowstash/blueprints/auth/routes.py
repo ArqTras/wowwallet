@@ -35,7 +35,7 @@ def register():
         # Capture event, login user and redirect to wallet page
         send_es({'type': 'register', 'user': user.email})
         login_user(user)
-        return redirect(url_for('wallet.dashboard'))
+        return redirect(url_for('wallet.setup'))
 
     return render_template("auth/register.html", form=form)
 
@@ -91,7 +91,7 @@ def delete():
         send_es({'type': 'delete_wallet', 'user': current_user.email})
         current_user.clear_wallet_data(reset_password=True, reset_wallet=True)
         flash('Successfully deleted wallet data')
-        return redirect(url_for('meta.index'))
+        return redirect(url_for('wallet.setup'))
     else:
         flash('Please confirm deletion of the account')
         return redirect(url_for('wallet.dashboard'))

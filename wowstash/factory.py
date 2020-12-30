@@ -1,3 +1,4 @@
+import click
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
@@ -67,6 +68,14 @@ def create_app():
         def clean_containers():
             from wowstash.library.docker import docker
             docker.cleanup()
+
+        @app.cli.command('reset_wallet')
+        @click.argument('user_id')
+        def reset_wallet(user_id):
+            from wowstash.models import User
+            user = User.query.get(user_id)
+            user.clear_wallet_data()
+            print(f'Wallet data cleared for user {user.id}')
 
         # Routes/blueprints
         from wowstash.blueprints.auth import auth_bp
