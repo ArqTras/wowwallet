@@ -91,7 +91,7 @@ def delete():
         send_es({'type': 'delete_wallet', 'user': current_user.email})
         current_user.clear_wallet_data(reset_password=True, reset_wallet=True)
         flash('Successfully deleted wallet data')
-        return redirect(url_for('meta.index'))
+        return redirect(url_for('wallet.setup'))
     else:
         flash('Please confirm deletion of the account')
         return redirect(url_for('wallet.dashboard'))

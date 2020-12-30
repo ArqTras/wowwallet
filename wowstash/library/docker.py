@@ -25,7 +25,6 @@ class Docker(object):
         u.wallet_password = token_urlsafe(12)
         db.session.commit()
         if seed:
-            action = "restore"
             command = f"""sh -c "yes '' | wownero-wallet-cli \
             --restore-deterministic-wallet \
             --generate-new-wallet /wallet/{u.id}.wallet \
@@ -34,11 +33,10 @@ class Docker(object):
             --daemon-address {config.DAEMON_PROTO}://{config.DAEMON_HOST}:{config.DAEMON_PORT} \
             --daemon-login {config.DAEMON_USER}:{config.DAEMON_PASS} \
             --electrum-seed '{seed}' \
-            --log-file /wallet/{u.id}-{action}.log \
+            --log-file /wallet/{u.id}-init.log \
             --command refresh"
             """
         else:
-            action = "create"
             command = f"""wownero-wallet-cli \
             --generate-new-wallet /wallet/{u.id}.wallet \
             --restore-height {daemon.info()['height']} \
@@ -46,7 +44,7 @@ class Docker(object):
             --mnemonic-language English \
             --daemon-address {config.DAEMON_PROTO}://{config.DAEMON_HOST}:{config.DAEMON_PORT} \
             --daemon-login {config.DAEMON_USER}:{config.DAEMON_PASS} \
-            --log-file /wallet/{u.id}-{action}.log \
+            --log-file /wallet/{u.id}-init.log \
             --command version
             """
         if not self.volume_exists(volume_name):
@@ -58,7 +56,7 @@ class Docker(object):
             self.wownero_image,
             command=command,
             auto_remove=True,
-            name=f'{action}_wallet_{u.id}',
+            name=f'init_wallet_{u.id}',
             remove=True,
             detach=True,
             volumes={
@@ -68,7 +66,7 @@ class Docker(object):
                 }
             }
         )
-        send_es({'type': f'{action}_wallet', 'user': u.email})
+        send_es({'type': f'init_wallet', 'user': u.email})
         return container.short_id
 
     def start_wallet(self, user_id):

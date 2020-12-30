@@ -28,7 +28,7 @@ def setup():
         restore_form = Restore()
         if restore_form.validate_on_submit():
             c = docker.create_wallet(current_user.id, restore_form.seed.data)
-            cache.store_data(f'restoring_{current_user.id}', 30, c)
+            cache.store_data(f'init_wallet_{current_user.id}', 30, c)
             current_user.wallet_created = True
             db.session.commit()
             return redirect(url_for('wallet.loading'))
@@ -66,6 +66,7 @@ def dashboard():
         return redirect(url_for('wallet.loading'))
 
     if not wallet.connected:
+        sleep(1.5)
         return redirect(url_for('wallet.loading'))
 
     address = wallet.get_address()
@@ -130,7 +131,8 @@ def connect():
 @login_required
 def create():
     if current_user.wallet_created is False:
-        docker.create_wallet(current_user.id)
+        c = docker.create_wallet(current_user.id)
+        cache.store_data(f'init_wallet_{current_user.id}', 30, c)
         current_user.wallet_created = True
         db.session.commit()
         return redirect(url_for('wallet.loading'))
@@ -141,14 +143,14 @@ def create():
 @login_required
 def status():
     user_vol = docker.get_user_volume(current_user.id)
-    restore_container = cache.get_data(f'restoring_{current_user.id}')
+    create_container = cache.get_data(f'init_wallet_{current_user.id}')
     data = {
         'created': current_user.wallet_created,
         'connected': current_user.wallet_connected,
         'port': current_user.wallet_port,
         'container': current_user.wallet_container,
         'volume': docker.volume_exists(user_vol),
-        'restoring': docker.container_exists(restore_container)
+        'initializing': docker.container_exists(create_container)
     }
     return jsonify(data)
 
