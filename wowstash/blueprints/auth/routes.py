@@ -7,7 +7,7 @@ from wowstash.forms import Register, Login, Delete
 from wowstash.models import User
 from wowstash.factory import db, bcrypt
 from wowstash.library.docker import docker
-from wowstash.library.elasticsearch import send_es
+from wowstash.library.helpers import capture_event
 
 
 @auth_bp.route("/register", methods=["GET", "POST"])
@@ -33,7 +33,7 @@ def register():
         db.session.commit()
 
         # Capture event, login user and redirect to wallet page
-        send_es({'type': 'register', 'user': user.email})
+        capture_event(user.id, 'register')
         login_user(user)
         return redirect(url_for('wallet.setup'))
 
@@ -63,7 +63,7 @@ def login():
             return redirect(url_for('auth.login'))
 
         # Capture event, login user, and redirect to wallet page
-        send_es({'type': 'login', 'user': user.email})
+        capture_event(user.id, 'login')
         login_user(user)
         return redirect(url_for('wallet.dashboard'))
 
@@ -73,9 +73,9 @@ def login():
 def logout():
     if current_user.is_authenticated:
         docker.stop_container(current_user.wallet_container)
-        send_es({'type': 'stop_container', 'user': current_user.email})
+        capture_event(current_user.id, 'stop_container')
         current_user.clear_wallet_data()
-        send_es({'type': 'logout', 'user': current_user.email})
+        capture_event(current_user.id, 'logout')
         logout_user()
     return redirect(url_for('meta.index'))
 
@@ -85,10 +85,10 @@ def delete():
     form = Delete()
     if form.validate_on_submit():
         docker.stop_container(current_user.wallet_container)
-        send_es({'type': 'stop_container', 'user': current_user.email})
+        capture_event(current_user.id, 'stop_container')
         sleep(1)
         docker.delete_wallet_data(current_user.id)
-        send_es({'type': 'delete_wallet', 'user': current_user.email})
+        capture_event(current_user.id, 'delete_wallet')
         current_user.clear_wallet_data(reset_password=True, reset_wallet=True)
         flash('Successfully deleted wallet data')
         return redirect(url_for('wallet.setup'))
