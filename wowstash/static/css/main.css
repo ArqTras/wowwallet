@@ -561,7 +561,7 @@ ol li {
   opacity: 0;
   position: absolute;
   top: 10px;
-  left: 30px;
+  left: 40px;
 
   -webkit-transition: opacity 1s ease-in-out;
   -moz-transition: opacity 1s ease-in-out;
@@ -599,7 +599,7 @@ ol li {
   font-size: 18px;
   position: absolute;
   top: 28px;
-  left: 122px;
+  left: 100px;
   width: 300px;
   font-family: monospace;
   word-break: break-word;
@@ -619,7 +619,7 @@ ol li {
   font-weight: bold;
   font-size: 18px;
   top: 70px;
-  left: 122px;
+  left: 100px;
   width: 300px;
   font-family: monospace;
   word-break: break-word;
