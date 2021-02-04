@@ -1,16 +1,16 @@
 # Site meta
-SITE_NAME = 'WOW Stash'
+SITE_NAME = 'webwallet.supportcryptonight.com'
 
 # Daemon
 DAEMON_PROTO = 'http'
-DAEMON_HOST = 'node.suchwow.xyz'
-DAEMON_PORT = 34568
+DAEMON_HOST = 'node.supportarqma.com'
+DAEMON_PORT = 1994
 DAEMON_USER = ''
 DAEMON_PASS = ''
 
 # Wallets
 WALLET_DIR = './data/wallets'
-WOWNERO_IMAGE = 'lalanza808/wownero:v0.9.0.0'
+WOWNERO_IMAGE = 'arqma/arqma:v0.6.1.0'
 
 # Security
 PASSWORD_SALT = 'salt here' # database salts

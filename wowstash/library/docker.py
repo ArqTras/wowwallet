@@ -14,7 +14,7 @@ from wowstash.library.jsonrpc import daemon
 class Docker(object):
     def __init__(self):
         self.client = from_env()
-        self.wownero_image = getattr(config, 'WOWNERO_IMAGE', 'lalanza808/wownero')
+        self.arqma_image = getattr(config, 'ARQMA_IMAGE', 'arqma/arqma')
         self.wallet_dir = expanduser(getattr(config, 'WALLET_DIR', '~/data/wallets'))
         self.listen_port = 8888
 
@@ -24,7 +24,7 @@ class Docker(object):
         u.wallet_password = token_urlsafe(12)
         db.session.commit()
         if seed:
-            command = f"""sh -c "yes '' | wownero-wallet-cli \
+            command = f"""sh -c "yes '' | arqma-wallet-cli \
             --restore-deterministic-wallet \
             --generate-new-wallet /wallet/{u.id}.wallet \
             --restore-height 0 \
@@ -36,7 +36,7 @@ class Docker(object):
             --command refresh"
             """
         else:
-            command = f"""wownero-wallet-cli \
+            command = f"""arqma-wallet-cli \
             --generate-new-wallet /wallet/{u.id}.wallet \
             --restore-height {daemon.info()['height']} \
             --password {u.wallet_password} \
@@ -52,7 +52,7 @@ class Docker(object):
                 driver='local'
             )
         container = self.client.containers.run(
-            self.wownero_image,
+            self.arqma_image,
             command=command,
             auto_remove=True,
             name=f'init_wallet_{u.id}',
@@ -71,7 +71,7 @@ class Docker(object):
         u = User.query.get(user_id)
         container_name = f'rpc_wallet_{u.id}'
         volume_name = self.get_user_volume(u.id)
-        command = f"""wownero-wallet-rpc \
+        command = f"""arqma-wallet-rpc \
         --non-interactive \
         --rpc-bind-port {self.listen_port} \
         --rpc-bind-ip 0.0.0.0 \
@@ -85,7 +85,7 @@ class Docker(object):
         """
         try:
             container = self.client.containers.run(
-                self.wownero_image,
+                self.arqma_image,
                 command=command,
                 auto_remove=True,
                 name=container_name,

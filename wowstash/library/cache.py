@@ -38,7 +38,7 @@ class Cache(object):
                 'sparkline': False
             }
             headers = {'accept': 'application/json'}
-            url = 'https://api.coingecko.com/api/v3/coins/wownero'
+            url = 'https://api.coingecko.com/api/v3/coins/arqma'
             try:
                 r = r_get(url, headers=headers, data=data)
                 info = {
